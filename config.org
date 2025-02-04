@@ -1,9 +1,9 @@
 #+title: Emacs Literate Config
 #+author: Connor Dunning
 #+STARTUP: content
-#+PROPERTY: header-args:emacs-lisp :tangle ./init.el :mkdirp yes
+#+PROPERTY: header-args:emacs-lisp :tangle ./init.el
 
-This is my EMACS config. It's 100% declaritive and reproducable. To get things up and running:
+This is my Emacs config. It's 100% declaritive and reproducable. To get things up and running:
 1. ensure 'early-init.el' is present
 2. eval the *Straight.el* block
 3. eval the *Org-mode* block, or at least *Literate Programming* 
@@ -61,13 +61,16 @@ Marginalia adds details to options in the completion minibuffers
   (use-package vertico
     :ensure t
     :bind (:map vertico-map
-    	      ("C-j" . vertico-next)
-    	      ("C-k" . vertico-previous)
-    	      ("C-f" . vertico-exit)
-    	      :map minibuffer-local-map
-    	      ("M-h" . backward-kill-word))
+              ("C-j" . vertico-next)
+              ("C-k" . vertico-previous)
+              ("C-f" . vertico-exit)
+              :map minibuffer-local-map
+              ("M-h" . backward-kill-word))
     :custom
     (vertico-cycle t)
+    (enable-recursive-minibuffers t)
+    (keymap-set vertico-map "?" #'minibuffer-completion-help)
+    (keymap-set vertico-map "TAB" #'minibuffer-complete)
     :init
     (vertico-mode))
 
@@ -163,29 +166,29 @@ Docs: https://github.com/oantolin/embark
 
 * Evil-mode
 #+begin_src emacs-lisp
-    (use-package evil
-      :init
-      (setq evil-want-integration t)
-      (setq evil-want-keybinding nil)
-      (setq evil-want-C-u-scroll t)
-      (setq evil-want-C-i-jump nil)
-      :config
-      (evil-mode 1)
-      (define-key evil-insert-state-map (kbd "C-g") 'evil-normal-state)
-      (define-key evil-insert-state-map (kbd "C-h") 'evil-delete-backward-char-and-join)
+  (use-package evil
+    :init
+    (setq evil-want-integration t)
+    (setq evil-want-keybinding nil)
+    (setq evil-want-C-u-scroll t)
+    (setq evil-want-C-i-jump nil)
+    :config
+    (evil-mode 1)
+    (define-key evil-insert-state-map (kbd "C-g") 'evil-normal-state)
+    (define-key evil-insert-state-map (kbd "C-h") 'evil-delete-backward-char-and-join)
 
-      ;; Use visual line motions even outside of visual-line-mode buffers
-      (evil-global-set-key 'motion "j" 'evil-next-visual-line)
-      (evil-global-set-key 'motion "k" 'evil-previous-visual-line)
+    ;; Use visual line motions even outside of visual-line-mode buffers
+    (evil-global-set-key 'motion "j" 'evil-next-visual-line)
+    (evil-global-set-key 'motion "k" 'evil-previous-visual-line)
 
-      (evil-set-initial-state 'messages-buffer-mode 'normal)
-      (evil-set-initial-state 'dashboard-mode 'normal)
-      (evil-set-undo-system 'undo-redo))
+    (evil-set-initial-state 'messages-buffer-mode 'normal)
+    (evil-set-initial-state 'dashboard-mode 'normal)
+    (evil-set-undo-system 'undo-redo))
 
-    (use-package evil-collection
-      :after evil
-      :config
-      (evil-collection-init))
+  (use-package evil-collection
+    :after evil
+    :config
+    (evil-collection-init))
 #+end_src
 
 * Looks
@@ -219,7 +222,7 @@ Docs: https://github.com/oantolin/embark
   ;;(set-face-attribute 'default nil :font "Iosevka Aile Medium" :height 110)
   ;;(set-face-attribute 'fixed-pitch nil :font "Iosevka Aile Medium" :height 110)
   ;;(set-face-attribute 'fixed-pitch nil :font "Blex Mono Nerd Font" :height 110)
-  
+
   ;;(add-to-list 'default-frame-alist '(font . "Iosevka Nerd Font Mono")) ;; this kinda works
 
 
@@ -342,22 +345,24 @@ Docs: https://github.com/oantolin/embark
 #+end_src
 
 ** Literate Programming
+
 *Structure Templates* can be inserted by typing  *<i <TAB>*  where 'i' is one of:
-#+begin_example
-a	  ‘#+BEGIN_EXPORT ascii’ … ‘#+END_EXPORT’
-c	  ‘#+BEGIN_CENTER’ … ‘#+END_CENTER’
-C	  ‘#+BEGIN_COMMENT’ … ‘#+END_COMMENT’
-e	  ‘#+BEGIN_EXAMPLE’ … ‘#+END_EXAMPLE’
-E	  ‘#+BEGIN_EXPORT’ … ‘#+END_EXPORT’
-h	  ‘#+BEGIN_EXPORT html’ … ‘#+END_EXPORT’
-l	  ‘#+BEGIN_EXPORT latex’ … ‘#+END_EXPORT’
-q	  ‘#+BEGIN_QUOTE’ … ‘#+END_QUOTE’
-s	  ‘#+BEGIN_SRC’ … ‘#+END_SRC’
-sh       ... shell
-el       ... emacs-lisp
-py       ... python
-v	  ‘#+BEGIN_VERSE’ … ‘#+END_VERSE’
-#+end_example
+| Specifier | Block Type                              |
+|-----------+-----------------------------------------|
+| a         | ‘#+begin_export ascii’ … ‘#+end_export’ |
+| c         | ‘#+begin_center’ … ‘#+end_center’       |
+| c         | ‘#+begin_comment’ … ‘#+end_comment’     |
+| e         | ‘#+begin_example’ … ‘#+end_example’     |
+| e         | ‘#+begin_export’ … ‘#+end_export’       |
+| h         | ‘#+begin_export html’ … ‘#+end_export’  |
+| l         | ‘#+begin_export latex’ … ‘#+end_export’ |
+| q         | ‘#+begin_quote’ … ‘#+end_quote’         |
+| s         | ‘#+begin_src’ … ‘#+end_src’             |
+| sh        | shell                                   |
+| el        | emacs-lisp                              |
+| py        | python                                  |
+| v         | ‘#+begin_verse’ … ‘#+end_verse’         |
+
 
 #+begin_src emacs-lisp
   ;; Execute code in org-mode code blocks
@@ -460,7 +465,7 @@ Packages that extend lsp mode:
 
 Shutdown lsp automatically
 #+begin_src emacs-lisp
-(setq lsp-keep-workspace-alive 'nil) 
+  (setq lsp-keep-workspace-alive 'nil) 
 #+end_src
 
 ** Projectile
@@ -487,7 +492,7 @@ lsp-mode integration: https://emacs-lsp.github.io/lsp-mode/page/languages/
 #+end_src
 *** C#
 #+begin_src emacs-lisp
-  
+
 #+end_src
 * Performance
 ** lsp-mode 
