@@ -61,11 +61,11 @@ Marginalia adds details to options in the completion minibuffers
   (use-package vertico
     :ensure t
     :bind (:map vertico-map
-              ("C-j" . vertico-next)
-              ("C-k" . vertico-previous)
-              ("C-f" . vertico-exit)
-              :map minibuffer-local-map
-              ("M-h" . backward-kill-word))
+                ("C-j" . vertico-next)
+                ("C-k" . vertico-previous)
+                ("C-f" . vertico-exit)
+                :map minibuffer-local-map
+                ("M-h" . backward-kill-word))
     :custom
     (vertico-cycle t)
     (enable-recursive-minibuffers t)
@@ -206,28 +206,27 @@ Docs: https://github.com/oantolin/embark
 
 ** Theme
 #+begin_src emacs-lisp
-    (use-package modus-themes
-      :config ; add cusomizations prior to loading theme
-      (setq modus-themes-italic-constructs t
-    	modus-themes-bold-constructs t
-    	modus-themes-mixed-fonts t
-            modus-themes-variable-pitch-ui nil
-    	modus-themes-custom-auto-reload t
-    	modus-themes-disable-other-themes t
+  (use-package modus-themes
+    :config ; add cusomizations prior to loading theme
+    (setq modus-themes-italic-constructs t
+  	modus-themes-bold-constructs t
+  	modus-themes-mixed-fonts t
+          modus-themes-variable-pitch-ui nil
+  	modus-themes-custom-auto-reload t
+  	modus-themes-disable-other-themes t
 
-    	)
-      (setq modus-themes-common-palette-overrides
-        '((bg-prose-block-contents bg-yellow-nuanced)
-          (bg-prose-block-delimiter bg-ochre)
-          (fg-prose-block-delimiter fg-main)))
-      
+  	)
+    (setq modus-themes-common-palette-overrides
+  	'((bg-prose-block-contents bg-yellow-nuanced)
+  	  (bg-prose-block-delimiter bg-ochre)
+  	  (fg-prose-block-delimiter fg-main)))
+    
     (set-fringe-mode 0)
     (setq window-divider-default-right-width 2)
     (set-face-foreground 'window-divider "DimGrey")
 
-      :init
-     (load-theme 'modus-operandi-tinted :no-confirm)
-      )
+    :init
+    (load-theme 'modus-operandi-tinted :no-confirm))
 #+end_src
 ** Scrolling
 #+begin_src emacs-lisp
@@ -322,8 +321,8 @@ Docs: https://github.com/oantolin/embark
     
     ;; Replace list hyphen with dot
     (font-lock-add-keywords 'org-mode
-      			  '(("^ *\\([-]\\) "
-      			     (0 (prog1 () (compose-region (match-beginning 1) (match-end 1) "•"))))))
+        			  '(("^ *\\([-]\\) "
+        			     (0 (prog1 () (compose-region (match-beginning 1) (match-end 1) "•"))))))
 
     ;; Set faces for heading levels
     (dolist (face '((org-level-1 . 1.2)
@@ -345,7 +344,10 @@ Docs: https://github.com/oantolin/embark
     (set-face-attribute 'org-meta-line nil :inherit '(font-lock-comment-face fixed-pitch))
     (set-face-attribute 'org-checkbox nil :inherit 'fixed-pitch))
 
-  (setq org-superstar-headline-bullets-list '("◉" ("🞛" ?◈) "○" "▷"))
+  ;;(setq org-superstar-headline-bullets-list '("◉" ("🞛" ?◈) "○" "▷"))
+  
+  (setq org-superstar-headline-bullets-list '("◉" "◈" "○" "▷"))
+
   (use-package org-superstar)
   (setq org-hide-emphasis-markers t)
 #+end_src
@@ -550,4 +552,3 @@ Emacs LSP performance booster: https://github.com/blahgeek/emacs-lsp-booster
         orig-result)))
   (advice-add 'lsp-resolve-final-command :around #'lsp-booster--advice-final-command)
 #+end_src
-
