@@ -197,11 +197,37 @@ Docs: https://github.com/oantolin/embark
   (use-package doom-modeline
     :ensure t
     :init (doom-modeline-mode 1)
-    :custom ((doom-modeline-height 15)))
+    :custom ((doom-modeline-height 20)))
   (setq doom-modeline-major-mode-color-icon t)
   (setq doom-modeline-buffer-state-icon t)
   (setq doom-modeline-buffer-modification-icon t)
   (setq doom-modeline-vcs-display-function #'doom-modeline-vcs-name)
+#+end_src
+
+** Theme
+#+begin_src emacs-lisp
+    (use-package modus-themes
+      :config ; add cusomizations prior to loading theme
+      (setq modus-themes-italic-constructs t
+    	modus-themes-bold-constructs t
+    	modus-themes-mixed-fonts t
+            modus-themes-variable-pitch-ui nil
+    	modus-themes-custom-auto-reload t
+    	modus-themes-disable-other-themes t
+
+    	)
+      (setq modus-themes-common-palette-overrides
+        '((bg-prose-block-contents bg-yellow-nuanced)
+          (bg-prose-block-delimiter bg-ochre)
+          (fg-prose-block-delimiter fg-main)))
+      
+    (set-fringe-mode 0)
+    (setq window-divider-default-right-width 2)
+    (set-face-foreground 'window-divider "DimGrey")
+
+      :init
+     (load-theme 'modus-operandi-tinted :no-confirm)
+      )
 #+end_src
 ** Scrolling
 #+begin_src emacs-lisp
@@ -216,28 +242,6 @@ Docs: https://github.com/oantolin/embark
   ;;(setq scroll-step 1)
   ;;(setq scroll-conservatively 10000)
   ;;(setq auto-window-vscroll nil)
-#+end_src
-** Theme & Fonts
-#+begin_src emacs-lisp
-  ;;(set-face-attribute 'default nil :font "Iosevka Aile Medium" :height 110)
-  ;;(set-face-attribute 'fixed-pitch nil :font "Iosevka Aile Medium" :height 110)
-  ;;(set-face-attribute 'fixed-pitch nil :font "Blex Mono Nerd Font" :height 110)
-
-  ;;(add-to-list 'default-frame-alist '(font . "Iosevka Nerd Font Mono")) ;; this kinda works
-
-
-  (use-package doom-themes
-    :ensure t
-    :config
-    ;; Global settings (defaults)
-    (setq doom-themes-enable-bold t    ; if nil, bold is universally disabled
-          doom-themes-enable-italic t) ; if nil, italics is universally disabled
-    (load-theme 'doom-gruvbox t)
-
-    ;; Enable flashing mode-line on errors
-    (doom-themes-visual-bell-config)
-    ;; Corrects (and improves) org-mode's native fontification.
-    (doom-themes-org-config))
 #+end_src
 ** Misc
 #+begin_src emacs-lisp
@@ -260,12 +264,15 @@ Docs: https://github.com/oantolin/embark
   (menu-bar-mode -1)
   (set-fringe-mode 0)
 
+  ;; Don't wrap lines
+  (setq-default truncate-lines t)
+
   ;; Line numbers by default, exclude spec. modes
   (global-display-line-numbers-mode 1)
   (dolist (mode '(org-mode-hook
-  		term-mode-hook
-  		shell-mode-hook
-  		eshell-mode-hook))
+   		term-mode-hook
+   		shell-mode-hook
+   		eshell-mode-hook))
     (add-hook mode (lambda () (display-line-numbers-mode 0))))
 #+end_src
 
@@ -331,7 +338,6 @@ Docs: https://github.com/oantolin/embark
 
     ;; Ensure that anything that should be fixed-pitch in Org files appears that way
     (set-face-attribute 'org-block nil :foreground nil :inherit 'fixed-pitch)
-    (set-face-attribute 'org-block nil :foreground nil :font "Iosevka Aile Medium" :height 110) ;; TODO not working, probably not the correct approach
     (set-face-attribute 'org-code nil   :inherit '(shadow fixed-pitch))
     (set-face-attribute 'org-table nil   :inherit '(shadow fixed-pitch))
     (set-face-attribute 'org-verbatim nil :inherit '(shadow fixed-pitch))
