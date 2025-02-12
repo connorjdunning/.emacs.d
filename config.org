@@ -4,15 +4,15 @@
 #+PROPERTY: header-args:emacs-lisp :tangle ./init.el
 
 This is my Emacs config. It's 100% declaritive and reproducable. To get things up and running:
-1. ensure 'early-init.el' is present
+1. Delete the bundled org-mode package to make room for the newest version.
 2. eval the *Straight.el* block
-3. eval the *Org-mode* block, or at least *Literate Programming* 
+3. eval the *Org-mode* block, or at least *Literate Programming*
+4. ensure 'early-init.el' is present *BEFORE* you next start emacs. It should have been created, if not copy the code from the /early-init.el/ block.
 
 The 'config.org' file will then tangle to 'init.el' when saved, so do that and restart emacs to load any changes.
 
 I'm building this out as I go. I'm not /too/ worried about start up time buuuuut I'm trying to keep things slim. 
 I took plenty of code blocks from David Wilson of https://systemcrafters.net/, his "emacs from scratch" series specificly. Coming from DOOM emacs I also took a lot of inspiration from that project (Henrik Lissner) https://github.com/doomemacs/doomemacs. Plenty of stuff from reddit and the wider internet too.
-
 * Notes
 ** TODO Set up lsp-mode
 *** Add bindings for Lsp-mode
@@ -22,6 +22,15 @@ I took plenty of code blocks from David Wilson of https://systemcrafters.net/, h
 ** TODO Profile helpful, it's very slow on initial run
 ** TODO Investigate switching to elpaca
 ** TODO Fonts don't work
+
+* early-init.el
+#+begin_src emacs-lisp :tangle early-init.el
+  ;; https://www.gnu.org/software/emacs/manual/html_node/emacs/Early-Init-File.html
+  (when (string-equal (file-name-nondirectory (or load-file-name buffer-file-name)) "early-init.el")
+    (message "Loading early-init.el")
+    (setq package-enable-at-startup nil)
+    (setenv "LSP_USE_PLISTS" "true"))
+#+end_src
 
 * Straight.el
 Bootstrapping
@@ -300,7 +309,8 @@ Docs: https://github.com/oantolin/embark
   		("n r f" . org-roam-node-find)
   		("b b" . consult-buffer)
   		("b d" . evil-delete-buffer)
-  		("b n" . next-buffer)))
+  		("b n" . next-buffer)
+                  ("g g" . magit-status)))
     (define-key leader-key (kbd (car pair)) (cdr pair)))
 
 #+end_src
@@ -345,7 +355,7 @@ Docs: https://github.com/oantolin/embark
     (set-face-attribute 'org-checkbox nil :inherit 'fixed-pitch))
 
   ;;(setq org-superstar-headline-bullets-list '("◉" ("🞛" ?◈) "○" "▷"))
-  
+
   (setq org-superstar-headline-bullets-list '("◉" "◈" "○" "▷"))
 
   (use-package org-superstar)
@@ -424,6 +434,16 @@ Docs: https://github.com/oantolin/embark
           org-roam-ui-open-on-start t))
 #+end_src
 * Programming
+** magit
+#+begin_src emacs-lisp
+  (use-package magit
+    :commands (magit-status magit-get-current-branch)
+    :custom
+    (magit-display-buffer-function #'magit-display-buffer-same-window-except-diff-v1))
+
+  (use-package evil-magit
+    :after magit)
+#+end_src
 ** Lsp-mode
 Docs: https://emacs-lsp.github.io/lsp-mode/
 #+begin_src emacs-lisp
