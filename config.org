@@ -4,24 +4,16 @@
 #+PROPERTY: header-args:emacs-lisp :tangle ./init.el
 
 This is my Emacs config. It's 100% declaritive and reproducable. To get things up and running:
-1. Delete the bundled org-mode package to make room for the newest version.
-2. eval the *Straight.el* block
-3. eval the *Org-mode* block, or at least *Literate Programming*
-4. ensure 'early-init.el' is present *BEFORE* you next start emacs. It should have been created, if not copy the code from the /early-init.el/ block.
+1. Delete the bundled org-mode package to make room for the newest version. Check the *lisp-directory* variable, it should be in /org.
+2. eval the *Straight.el* block.
+3. eval the *Org-mode* block, and *Literate Programming* sub item.
+4. Save the file, you may have to run *org-babel-tangle* the first time but it should tangle automaticly aftwards.
+5. ensure 'early-init.el' is present *BEFORE* you restart emacs. It should have been created; if not, copy the code from the *early-init.el* block.
 
 The 'config.org' file will then tangle to 'init.el' when saved, so do that and restart emacs to load any changes.
 
 I'm building this out as I go. I'm not /too/ worried about start up time buuuuut I'm trying to keep things slim. 
 I took plenty of code blocks from David Wilson of https://systemcrafters.net/, his "emacs from scratch" series specificly. Coming from DOOM emacs I also took a lot of inspiration from that project (Henrik Lissner) https://github.com/doomemacs/doomemacs. Plenty of stuff from reddit and the wider internet too.
-* Notes
-** TODO Set up lsp-mode
-*** Add bindings for Lsp-mode
-*** check out dap-mode debugger
-** TODO pop-up terminal
-** TODO Add documentation links for all packages
-** TODO Profile helpful, it's very slow on initial run
-** TODO Investigate switching to elpaca
-** TODO Fonts don't work
 
 * early-init.el
 #+begin_src emacs-lisp :tangle early-init.el
@@ -107,7 +99,8 @@ Marginalia adds details to options in the completion minibuffers
     (completion-styles '(orderless basic))
     (completion-category-overrides '((file (styles basic partial-completion)))))
 #+end_src
-** Which-key 
+** Which-key
+Docs: https://github.com/justbur/emacs-which-key (ARCHIVED)
 #+begin_src emacs-lisp
   (use-package which-key
     :init (which-key-mode)
@@ -312,7 +305,6 @@ Docs: https://github.com/oantolin/embark
   		("b n" . next-buffer)
                   ("g g" . magit-status)))
     (define-key leader-key (kbd (car pair)) (cdr pair)))
-
 #+end_src
 
 * Org-mode
@@ -363,7 +355,6 @@ Docs: https://github.com/oantolin/embark
 #+end_src
 
 ** Literate Programming
-
 *Structure Templates* can be inserted by typing  *<i <TAB>*  where 'i' is one of:
 | Specifier | Block Type                              |
 |-----------+-----------------------------------------|
@@ -522,6 +513,15 @@ lsp-mode integration: https://emacs-lsp.github.io/lsp-mode/page/languages/
 #+begin_src emacs-lisp
 
 #+end_src
+* TODO Utilites
+** leetcode.el
+Docs: https://github.com/ginqi7/leetcode-emacs?tab=readme-ov-file
+
+Depends on [[https://github.com/skygragon/leetcode-cli][leetcode-cli]], node, npm
+
+#+begin_src emacs-lisp
+
+#+end_src
 * Performance
 ** lsp-mode 
 lsp-mode creates a lot of garbage
@@ -572,3 +572,15 @@ Emacs LSP performance booster: https://github.com/blahgeek/emacs-lsp-booster
         orig-result)))
   (advice-add 'lsp-resolve-final-command :around #'lsp-booster--advice-final-command)
 #+end_src
+
+
+* TODO 
+** TODO Set up lsp-mode
+*** Add bindings for Lsp-mode
+*** check out dap-mode debugger
+** TODO pop-up terminal
+** TODO Add documentation links for all packages
+** TODO Profile helpful, it's very slow on initial run
+** TODO Investigate switching to elpaca
+** TODO Fonts don't work
+
