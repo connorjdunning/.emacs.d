@@ -4,7 +4,7 @@
 #+PROPERTY: header-args:emacs-lisp :tangle ./init.el
 
 This is my Emacs config. It's 100% declaritive and reproducable. To get things up and running:
-1. Delete the bundled org-mode package to make room for the newest version. Check the *lisp-directory* variable, it should be in /org.
+1. Delete the bundled org-mode package to make room for the newest version. Check the *lisp-directory* variable, it should be in org/.
 2. eval the *Straight.el* block.
 3. eval the *Org-mode* block, and *Literate Programming* sub item.
 4. Save the file, you may have to run *org-babel-tangle* the first time but it should tangle automaticly aftwards.
@@ -16,8 +16,9 @@ I'm building this out as I go. I'm not /too/ worried about start up time buuuuut
 I took plenty of code blocks from David Wilson of https://systemcrafters.net/, his "emacs from scratch" series specificly. Coming from DOOM emacs I also took a lot of inspiration from that project (Henrik Lissner) https://github.com/doomemacs/doomemacs. Plenty of stuff from reddit and the wider internet too.
 
 * early-init.el
+manual: https://www.gnu.org/software/emacs/manual/html_node/emacs/Early-Init-File.html
+This block tangles to the early-init file and has a safety check incase it tangles to init.el
 #+begin_src emacs-lisp :tangle early-init.el
-  ;; https://www.gnu.org/software/emacs/manual/html_node/emacs/Early-Init-File.html
   (when (string-equal (file-name-nondirectory (or load-file-name buffer-file-name)) "early-init.el")
     (message "Loading early-init.el")
     (setq package-enable-at-startup nil)
@@ -25,6 +26,7 @@ I took plenty of code blocks from David Wilson of https://systemcrafters.net/, h
 #+end_src
 
 * Straight.el
+Repo: https://github.com/radian-software/straight.el
 Bootstrapping
 #+begin_src emacs-lisp
   (setq straight-use-package-by-default t) ; use-package invokes straight.el
@@ -45,7 +47,7 @@ Bootstrapping
         (eval-print-last-sexp)))
     (load bootstrap-file nil 'nomessage))
 
-  (straight-use-package 'org) ;; b/c org version mismatch warning
+  (straight-use-package 'org) ; Reinstall Org
   (straight-use-package 'use-package)
 #+end_src
 
@@ -53,10 +55,15 @@ Bootstrapping
 #+begin_src emacs-lisp
   (setq auto-save-default nil)
   (recentf-mode +1)
+  (electric-pair-mode 1)
 #+end_src
 
 * Completion & Minibuffer
 ** Vertico & Extensions
+Repos:
+- [[https://github.com/minad/vertico][vertico]]
+- [[https://github.com/minad/marginalia][marginalia]]
+- [[https://github.com/oantolin/orderless][orderless]]
 Marginalia adds details to options in the completion minibuffers
 #+begin_src emacs-lisp
   (use-package vertico
@@ -70,11 +77,8 @@ Marginalia adds details to options in the completion minibuffers
     :custom
     (vertico-cycle t)
     (enable-recursive-minibuffers t)
-    (keymap-set vertico-map "?" #'minibuffer-completion-help)
-    (keymap-set vertico-map "TAB" #'minibuffer-complete)
     :init
     (vertico-mode))
-
   (use-package savehist
     :init
     (savehist-mode))
@@ -96,23 +100,48 @@ Marginalia adds details to options in the completion minibuffers
   (use-package orderless
     :ensure t
     :custom
-    (completion-styles '(orderless basic))
+    (completion-styles '(basic orderless))
     (completion-category-overrides '((file (styles basic partial-completion)))))
-#+end_src
+
+  ;; A more bash-like prefix exxpansion
+  (keymap-set vertico-map "?" #'minibuffer-completion-help)
+  (keymap-set vertico-map "TAB" #'minibuffer-complete)
+    #+end_src
+
+#+RESULTS:
+
 ** Which-key
-Docs: https://github.com/justbur/emacs-which-key (ARCHIVED)
+Repo: https://github.com/justbur/emacs-which-key (ARCHIVED)
 #+begin_src emacs-lisp
   (use-package which-key
     :init (which-key-mode)
     :diminish
     :config
     (setq which-key-idle-delay 0.1))
-  (which-key-setup-minibuffer)
-  (setq which-key-popup-type 'minibuffer)
-#+end_src
+  ;;(which-key-setup-minibuffer)
+  ;;(setq which-key-popup-type 'minibuffer)
+  (which-key-setup-side-window-right-bottom)
+  (which-key-add-key-based-replacements
+    "SPC :"     "M-x"
+    "SPC o"     "Other window"
+    "SPC o t"   "vTerm"
+    "SPC b"     "Buffer"
+    "SPC b b"   "switch Buffer"
+    "SPC b d"   "Delete"
+    "SPC b n"   "Next"
+    "SPC g"     "maGit"
+    "SPC f"     "File"
+    "SPC f s"   "Save"
+    "SPC f c"   "Config"
+    "SPC f r"   "find Recent"
+    "SPC n"     "Notes"
+    "SPC n r u" "Roam Ui"
+    "SPC n r f" "Roam Find-node")
+
+#+End_src
 
 * Embark
-Docs: https://github.com/oantolin/embark
+Repo: https://github.com/oantolin/embark
 #+begin_src emacs-lisp
   (use-package embark
     :ensure t
@@ -123,18 +152,6 @@ Docs: https://github.com/oantolin/embark
      ("C-h B" . embark-bindings)) ;; alternative for `describe-bindings'
 
     :init
-
-    ;; Optionally replace the key help with a completing-read interface TODO: Figure out what that means
-    ;;(setq prefix-help-command #'embark-prefix-help-command)
-
-    ;; Show the Embark target at point via Eldoc. You may adjust the
-    ;; Eldoc strategy, if you want to see the documentation from
-    ;; multiple providers. Beware that using this can be a little
-    ;; jarring since the message shown in the minibuffer can be more
-    ;; than one line, causing the modeline to move up and down:
-
-    ;; (add-hook 'eldoc-documentation-functions #'embark-eldoc-first-target)
-    ;; (setq eldoc-documentation-strategy #'eldoc-documentation-compose-eagerly)
 
     :config
 
@@ -152,6 +169,7 @@ Docs: https://github.com/oantolin/embark
 #+end_src
 
 * Helpful
+Repo: https://github.com/Wilfred/helpful
 #+begin_src emacs-lisp
   (use-package helpful
     :bind (
@@ -163,10 +181,13 @@ Docs: https://github.com/oantolin/embark
   (global-set-key (kbd "C-h v") #'helpful-variable)
   (global-set-key (kbd "C-h k") #'helpful-key)
   (global-set-key (kbd "C-h x") #'helpful-command)
-  (global-set-key (kbd "C-c C-d") #'helpful-at-point)
+  (global-set-key (kbd "C-h C-h") #'helpful-at-point)
 #+end_src
 
 * Evil-mode
+Docs/Repo:
+- [[https://evil.readthedocs.io/en/latest/overview.html][evil-mode]]
+- [[https://github.com/emacs-evil/evil-collection][evil-collection]]
 #+begin_src emacs-lisp
   (use-package evil
     :init
@@ -193,8 +214,37 @@ Docs: https://github.com/oantolin/embark
     (evil-collection-init))
 #+end_src
 
+* Other Keybindings
+#+begin_src emacs-lisp
+  (global-set-key (kbd "<escape>") 'keyboard-escape-quit)
+  (global-set-key (kbd "C-=") 'text-scale-increase)
+  (global-set-key (kbd "C--") 'text-scale-decrease)
+
+  (define-prefix-command 'leader-key)
+  (define-key evil-normal-state-map (kbd "SPC") 'leader-key)
+  (define-key global-map (kbd "C-SPC") 'leader-key)
+
+  (dolist (pair '((":"   . execute-extended-command)
+  		("f r" . recentf)
+  		("f c" . (lambda () 
+                             (interactive) 
+                             (find-file (expand-file-name "~/.emacs.d/config.org"))))
+  		("f s" . write-file)
+  		("n r u" . org-roam-ui-mode)
+  		("n r f" . org-roam-node-find)
+  		("b b" . consult-buffer)
+  		("o t" . vterm-other-window)
+  		("b d" . evil-delete-buffer)
+  		("b n" . next-buffer)
+                  ("g"   . magit-status)))
+    (define-key leader-key (kbd (car pair)) (cdr pair)))
+  (global-set-key (kbd "C-SPC") 'avy-goto-char-timer) ; Go anywhere with avy
+  (global-set-key (kbd "C-x C-SPC") 'avy-pop-mark) ; Go back
+#+end_src
+
 * Looks
 ** Modeline
+Repo: https://github.com/seagle0128/doom-modeline
 #+begin_src emacs-lisp
   (use-package doom-modeline
     :ensure t
@@ -207,6 +257,7 @@ Docs: https://github.com/oantolin/embark
 #+end_src
 
 ** Theme
+Docs: https://protesilaos.com/emacs/modus-themes
 #+begin_src emacs-lisp
   (use-package modus-themes
     :config ; add cusomizations prior to loading theme
@@ -231,6 +282,7 @@ Docs: https://github.com/oantolin/embark
     (load-theme 'modus-operandi-tinted :no-confirm))
 #+end_src
 ** Scrolling
+Repo: https://github.com/zk-phi/sublimity
 #+begin_src emacs-lisp
   (use-package sublimity
     :config
@@ -240,9 +292,6 @@ Docs: https://github.com/oantolin/embark
     (setq sublimity-scroll-drift-length 5)
     :init
     (sublimity-mode +1))
-  ;;(setq scroll-step 1)
-  ;;(setq scroll-conservatively 10000)
-  ;;(setq auto-window-vscroll nil)
 #+end_src
 ** Misc
 #+begin_src emacs-lisp
@@ -255,11 +304,9 @@ Docs: https://github.com/oantolin/embark
     :straight (mini-ontop :type git :host github :repo "hkjels/mini-ontop.el"))
   (mini-ontop-mode 1)
 
-  ;; Look
   (setq inhibit-startup-message t  ; Don't show the splash screen
         visible-bell t)            ; Flash when the bell rings
-  ;; Turn off some unneeded UI elements
-  ;;(menu-bar-mode -1)  ; Leave this one on if you're a beginner!
+
   (tool-bar-mode -1)
   (scroll-bar-mode -1)
   (menu-bar-mode -1)
@@ -271,43 +318,16 @@ Docs: https://github.com/oantolin/embark
   ;; Line numbers by default, exclude spec. modes
   (global-display-line-numbers-mode 1)
   (dolist (mode '(org-mode-hook
-   		term-mode-hook
-   		shell-mode-hook
-   		eshell-mode-hook))
+     		term-mode-hook
+     		vterm-mode-hook
+     		shell-mode-hook
+     		eshell-mode-hook))
     (add-hook mode (lambda () (display-line-numbers-mode 0))))
 #+end_src
 
-* Other Keybindings
-#+begin_src emacs-lisp
-  (global-set-key (kbd "<escape>") 'keyboard-escape-quit)
-  (global-set-key (kbd "C-=") 'text-scale-increase)
-  (global-set-key (kbd "C--") 'text-scale-decrease)
-
-  (define-prefix-command 'leader-key)
-  (define-key evil-normal-state-map (kbd "SPC") 'leader-key)
-  (define-key global-map (kbd "C-SPC") 'leader-key)
-  ;;
-  ;;(define-key leader-key (kbd "b b") 'consult-bufferv)
-  ;;(define-key leader-key (kbd "b d") 'evil-delete-buffer)
-
-  (global-set-key (kbd "<f6>") (lambda() (interactive)(find-file "~/.emacs.d/config.org")))
-
-  (dolist (pair '((":"   . execute-extended-command)
-  		("f r" . recentf)
-  		("f c" . (lambda () 
-                             (interactive) 
-                             (find-file (expand-file-name "~/.emacs.d/config.org"))))
-  		("f s" . write-file)
-  		("n r u" . org-roam-ui-mode)
-  		("n r f" . org-roam-node-find)
-  		("b b" . consult-buffer)
-  		("b d" . evil-delete-buffer)
-  		("b n" . next-buffer)
-                  ("g g" . magit-status)))
-    (define-key leader-key (kbd (car pair)) (cdr pair)))
-#+end_src
-
 * Org-mode
+Manual: https://orgmode.org/org.html
+Worg: https://orgmode.org/worg/
 #+begin_src emacs-lisp
   (defun efs/org-mode-setup ()
     (org-indent-mode)
@@ -355,6 +375,9 @@ Docs: https://github.com/oantolin/embark
 #+end_src
 
 ** Literate Programming
+Docs (worg): https://orgmode.org/worg/org-contrib/babel/intro.html
+Home Page: https://orgmode.org/worg/org-contrib/babel/
+
 *Structure Templates* can be inserted by typing  *<i <TAB>*  where 'i' is one of:
 | Specifier | Block Type                              |
 |-----------+-----------------------------------------|
@@ -371,7 +394,6 @@ Docs: https://github.com/oantolin/embark
 | el        | emacs-lisp                              |
 | py        | python                                  |
 | v         | ‘#+begin_verse’ … ‘#+end_verse’         |
-
 
 #+begin_src emacs-lisp
   ;; Execute code in org-mode code blocks
@@ -397,6 +419,7 @@ Docs: https://github.com/oantolin/embark
 #+end_src
 
 ** Org-roam
+Manual: https://www.orgroam.com/manual.html
 #+begin_src emacs-lisp
   (use-package org-roam
     :ensure t
@@ -414,10 +437,6 @@ Docs: https://github.com/oantolin/embark
 
   (use-package org-roam-ui
     :after org-roam ;; or :after org
-    ;;         normally we'd recommend hooking orui after org-roam, but since org-roam does not have
-    ;;         a hookable mode anymore, you're advised to pick something yourself
-    ;;         if you don't care about startup time, use
-    ;;  :hook (after-init . org-roam-ui-mode)
     :config
     (setq org-roam-ui-sync-theme t
           org-roam-ui-follow t
@@ -426,6 +445,8 @@ Docs: https://github.com/oantolin/embark
 #+end_src
 * Programming
 ** magit
+Manual: https://magit.vc/manual/magit.html
+Reference Card: https://magit.vc/manual/magit-refcard.pdf
 #+begin_src emacs-lisp
   (use-package magit
     :commands (magit-status magit-get-current-branch)
@@ -464,7 +485,7 @@ Packages that extend lsp mode:
 
   (use-package company
     :after lsp-mode
-    :hook (lsp-mode . company-mode)
+    ;;    :hook (lsp-mode . company-mode)
     :bind (:map company-active-map
                 ("<tab>" . company-complete-selection))
     (:map lsp-mode-map
@@ -472,6 +493,8 @@ Packages that extend lsp mode:
     :custom
     (company-minimum-prefix-length 1)
     (company-idle-delay 0.0))
+  (add-hook 'after-init-hook 'global-company-mode) ;; Company everywhere
+
   (use-package dap-mode :after lsp-mode :config (dap-auto-configure-mode))
 
   (use-package yasnippet :config (yas-global-mode))
@@ -488,6 +511,7 @@ Shutdown lsp automatically
 #+end_src
 
 ** Projectile
+Repo: https://github.com/bbatsov/projectile
 #+begin_src emacs-lisp
   (use-package projectile
     :diminish
@@ -514,7 +538,12 @@ lsp-mode integration: https://emacs-lsp.github.io/lsp-mode/page/languages/
 
 #+end_src
 * TODO Utilites
-** leetcode.el
+** vterm
+#+begin_src emacs-lisp
+  (use-package vterm
+    :ensure t)
+#+end_src
+** TODO leetcode.el
 Docs: https://github.com/ginqi7/leetcode-emacs?tab=readme-ov-file
 
 Depends on [[https://github.com/skygragon/leetcode-cli][leetcode-cli]], node, npm
@@ -573,14 +602,12 @@ Emacs LSP performance booster: https://github.com/blahgeek/emacs-lsp-booster
   (advice-add 'lsp-resolve-final-command :around #'lsp-booster--advice-final-command)
 #+end_src
 
-
 * TODO 
 ** TODO Set up lsp-mode
 *** Add bindings for Lsp-mode
 *** check out dap-mode debugger
-** TODO pop-up terminal
+** DONE pop-up terminal
 ** TODO Add documentation links for all packages
 ** TODO Profile helpful, it's very slow on initial run
 ** TODO Investigate switching to elpaca
 ** TODO Fonts don't work
-
