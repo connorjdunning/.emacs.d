@@ -443,6 +443,24 @@ Manual: https://www.orgroam.com/manual.html
           org-roam-ui-update-on-save t
           org-roam-ui-open-on-start t))
 #+end_src
+** howm
+Home: https://kaorahi.github.io/howm/
+#+begin_src emacs-lisp
+  (setq howm-view-use-grep t)  ;; use external grep
+  (use-package howm
+    :ensure t
+    :init
+    (setq howm-directory "~/howm")
+    ;; What format to use for the files?
+    (setq howm-file-name-format "%Y-%m-%d-%H%M%S.org")
+    (setq howm-view-title-header "*")
+    (setq howm-dtime-format "<%Y-%m-%d %a %H:%M>")
+    ;; Avoid conflicts with Org-mode by changing Howm's prefix from "C-c ,".
+    (setq howm-prefix (kbd "C-c ;"))
+    :bind*
+    ;; Conveniently open the Howm menu with "C-c ; ;".
+    ("C-c ; ;" . howm-menu))
+#+end_src
 * Programming
 ** magit
 Manual: https://magit.vc/manual/magit.html
@@ -537,19 +555,17 @@ lsp-mode integration: https://emacs-lsp.github.io/lsp-mode/page/languages/
 #+begin_src emacs-lisp
 
 #+end_src
-* TODO Utilites
+*** JS/TS
+Docs: https://docs.deno.com/
+#+begin_src emacs-lisp
+  (setq lsp-clients-deno-server "/home/connor/.deno/bin/deno")
+  (setq lsp-clients-deno-enable-lint t)
+#+end_src
+* Utilites
 ** vterm
 #+begin_src emacs-lisp
   (use-package vterm
     :ensure t)
-#+end_src
-** TODO leetcode.el
-Docs: https://github.com/ginqi7/leetcode-emacs?tab=readme-ov-file
-
-Depends on [[https://github.com/skygragon/leetcode-cli][leetcode-cli]], node, npm
-
-#+begin_src emacs-lisp
-
 #+end_src
 * Performance
 ** lsp-mode 
@@ -607,7 +623,14 @@ Emacs LSP performance booster: https://github.com/blahgeek/emacs-lsp-booster
 *** Add bindings for Lsp-mode
 *** check out dap-mode debugger
 ** DONE pop-up terminal
-** TODO Add documentation links for all packages
 ** TODO Profile helpful, it's very slow on initial run
 ** TODO Investigate switching to elpaca
 ** TODO Fonts don't work
+** TODO Checkout ebook packages
+- https://github.com/bddean/emacs-ereader
+  or
+- https://github.com/chenyanming/calibredb.el
+- https://depp.brause.cc/nov.el/
+- https://github.com/chenyanming/anki.el
+** Check out this [[http://alhassy.com/emacs.d/index.html][wild config]] (Life Configued in Emacs)
+ 
