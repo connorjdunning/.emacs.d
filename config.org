@@ -466,6 +466,11 @@ Home: https://kaorahi.github.io/howm/
     ;; Conveniently open the Howm menu with "C-c ; ;".
     ("C-c ; ;" . howm-menu))
 #+end_src
+** TODO ob-mermaid
+Repo: https://github.com/arnm/ob-mermaid
+#+begin_src emacs-lisp
+
+#+end_src
 * Programming
 ** magit
 Manual: https://magit.vc/manual/magit.html
