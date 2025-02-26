@@ -262,7 +262,8 @@ Repo: https://github.com/seagle0128/doom-modeline
 
 ** Theme
 Docs: https://protesilaos.com/emacs/modus-themes
-#+begin_src emacs-lisp
+*DISABLED*
+#+begin_src emacs-lisp :tangle no
   (use-package modus-themes
     :config ; add cusomizations prior to loading theme
     (setq modus-themes-italic-constructs t
@@ -270,9 +271,7 @@ Docs: https://protesilaos.com/emacs/modus-themes
   	modus-themes-mixed-fonts t
           modus-themes-variable-pitch-ui nil
   	modus-themes-custom-auto-reload t
-  	modus-themes-disable-other-themes t
-
-  	)
+  	modus-themes-disable-other-themes t)
     (setq modus-themes-common-palette-overrides
   	'((bg-prose-block-contents bg-yellow-nuanced)
   	  (bg-prose-block-delimiter bg-ochre)
@@ -284,6 +283,17 @@ Docs: https://protesilaos.com/emacs/modus-themes
 
     :init
     (load-theme 'modus-operandi-tinted :no-confirm))
+#+end_src
+
+Manual: https://protesilaos.com/emacs/ef-themes#h:dd9e06f2-eef0-4afe-8a12-b7af5d597108
+#+begin_src emacs-lisp 
+    (use-package ef-themes
+      :config
+      (setq ef-eagle-palette-overrides
+  	  '((link cyan)))
+      (mapc #'disable-theme custom-enabled-themes)
+      (setq ef-themes-mixed-fonts t))
+    (ef-themes-select 'ef-eagle)
 #+end_src
 ** Scrolling
 Repo: https://github.com/zk-phi/sublimity
@@ -326,7 +336,7 @@ Repo: https://github.com/zk-phi/sublimity
      		vterm-mode-hook
      		shell-mode-hook
      		eshell-mode-hook
-  		  treemacs-mode-hook))
+  		treemacs-mode-hook))
     (add-hook mode (lambda () (display-line-numbers-mode 0))))
 #+end_src
 
@@ -508,8 +518,8 @@ Packages that extend lsp mode:
     :custom
     (lsp-ui-doc-position 'bottom))
 
-  ;;  (use-package lsp-treemacs
-  ;;    :after lsp)
+  (use-package lsp-treemacs
+    :after lsp)
 
   (use-package company
     :after lsp-mode
