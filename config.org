@@ -12,8 +12,11 @@ This is my Emacs config. It's 100% declaritive and reproducable. To get things u
 
 The 'config.org' file will then tangle to 'init.el' when saved, so do that and restart emacs to load any changes.
 
-I'm building this out as I go. I'm not /too/ worried about start up time buuuuut I'm trying to keep things slim. 
-I took plenty of code blocks from David Wilson of https://systemcrafters.net/, his "emacs from scratch" series specificly. Coming from DOOM emacs I also took a lot of inspiration from that project (Henrik Lissner) https://github.com/doomemacs/doomemacs. Plenty of stuff from reddit and the wider internet too.
+I'm building this out as I go. I'm not /too/ worried about start up time buuuuut I'm trying to keep things slim.
+*Citations* 
+ - I took plenty of code blocks from David Wilson of https://systemcrafters.net/, his "emacs from scratch" series specificly.
+ - Coming from DOOM emacs I also took a lot of inspiration from that project (Henrik Lissner) https://github.com/doomemacs/doomemacs.
+ - A Life Configuring emacs, [[https://alhassy.github.io/][Musa Al-hassy]]
 
 * early-init.el
 manual: https://www.gnu.org/software/emacs/manual/html_node/emacs/Early-Init-File.html
@@ -58,6 +61,22 @@ Bootstrapping
   (electric-pair-mode 1)
 #+end_src
 
+** undo-tree
+#+begin_src emacs-lisp
+  (use-package undo-tree
+    :bind
+    ("C-x u" . undo-tree-visualize)
+    ;;("k" . undo-tree-visualize-undo)
+    ;;("j" . undo-tree-visualize-redo)
+    ;;("h" . undo-tree-visualize-switch-branch-left)
+    ;;("l" . undo-tree-visualize-switch-branch-right)
+    :config
+    (setq undo-tree-visualizer-timestamps t)
+    (setq undo-tree-visualizer-diff t)
+    (setq undo-tree-history-directory-alist '(("." . "~/.emacs.d/undo"))))
+
+  (global-undo-tree-mode)
+#+end_src
 * Completion & Minibuffer
 ** Vertico & Extensions
 Repos:
@@ -106,7 +125,7 @@ Marginalia adds details to options in the completion minibuffers
   ;; A more bash-like prefix exxpansion
   (keymap-set vertico-map "?" #'minibuffer-completion-help)
   (keymap-set vertico-map "TAB" #'minibuffer-complete)
-    #+end_src
+#+end_src
 
 #+RESULTS:
 
@@ -210,7 +229,7 @@ Docs/Repo:
 
     (evil-set-initial-state 'messages-buffer-mode 'normal)
     (evil-set-initial-state 'dashboard-mode 'normal)
-    (evil-set-undo-system 'undo-redo))
+    (evil-set-undo-system 'undo-tree))
 
   (use-package evil-collection
     :after evil
@@ -287,12 +306,15 @@ Docs: https://protesilaos.com/emacs/modus-themes
 
 Manual: https://protesilaos.com/emacs/ef-themes#h:dd9e06f2-eef0-4afe-8a12-b7af5d597108
 #+begin_src emacs-lisp 
-    (use-package ef-themes
-      :config
-      (setq ef-eagle-palette-overrides
-  	  '((link cyan)))
-      (mapc #'disable-theme custom-enabled-themes)
-      (setq ef-themes-mixed-fonts t))
+  (use-package ef-themes
+    :config
+    (setq ef-eagle-palette-overrides
+          '((link cyan)))
+    (setq ef-themes-to-toggle '(ef-eagle ef-elea-dark))
+    (mapc #'disable-theme custom-enabled-themes)
+    (setq ef-themes-mixed-fonts t)
+    :bind
+    (("C-c t" . ef-themes-toggle)))
     (ef-themes-select 'ef-eagle)
 #+end_src
 ** Scrolling
@@ -468,13 +490,15 @@ Home: https://kaorahi.github.io/howm/
     (setq howm-directory "~/howm")
     ;; What format to use for the files?
     (setq howm-file-name-format "%Y-%m-%d-%H%M%S.org")
-    (setq howm-view-title-header "*")
+    (setq howm-view-title-header "#+title: ")
     (setq howm-dtime-format "<%Y-%m-%d %a %H:%M>")
     ;; Avoid conflicts with Org-mode by changing Howm's prefix from "C-c ,".
     (setq howm-prefix (kbd "C-c ;"))
     :bind*
     ;; Conveniently open the Howm menu with "C-c ; ;".
     ("C-c ; ;" . howm-menu))
+  
+;;(setq howm-template "* #+title: %cursor\n%date\n\n")
 #+end_src
 ** TODO ob-mermaid
 Repo: https://github.com/arnm/ob-mermaid
@@ -773,5 +797,4 @@ Emacs LSP performance booster: https://github.com/blahgeek/emacs-lsp-booster
 - https://github.com/chenyanming/calibredb.el
 - https://depp.brause.cc/nov.el/
 - https://github.com/chenyanming/anki.el
-** Check out this [[http://alhassy.com/emacs.d/index.html][wild config]] (Life Configued in Emacs)
  
