@@ -163,6 +163,8 @@ Repo: https://github.com/justbur/emacs-which-key (ARCHIVED)
 
 #+End_src
 
+** TODO checkout the built-in completion stuff
+https://www.youtube.com/watch?v=-ZeoGVtMLaU
 * Embark
 Repo: https://github.com/oantolin/embark
 #+begin_src emacs-lisp
