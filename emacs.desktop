@@ -1,0 +1,4 @@
+[Desktop Entry]
+Name=EXWM
+Exec=/home/connor/.emacs.d/start-exwm.sh
+Type=Application

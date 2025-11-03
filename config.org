@@ -1,23 +1,24 @@
 #+title: Emacs Literate Config
 #+author: Connor Dunning
 #+STARTUP: content
-#+PROPERTY: header-args:emacs-lisp :tangle ./init.el
+#+PROPERTY: header-args:emacs-lisp :tangle ./init.el :results silent
 
-This is my Emacs config. It's 100% declaritive and reproducable. To get things up and running:
-1. Delete the bundled org-mode package to make room for the newest version. Check the *lisp-directory* variable, it should be in org/.
+This is my Emacs config. It's hopefully declarative and reproducable. To get things up and running:
+1. Delete the bundled org-mode package to make room for the newest version. Check the *lisp-directory* variable, and delete 'org/'
 2. eval the *Straight.el* block.
 3. eval the *Org-mode* block, and *Literate Programming* sub item.
-4. Save the file, you may have to run *org-babel-tangle* the first time but it should tangle automaticly aftwards.
+4. Save the file, you may have to run *org-babel-tangle* the first time but it should tangle automaticly afterwards.
 5. ensure 'early-init.el' is present *BEFORE* you restart emacs. It should have been created; if not, copy the code from the *early-init.el* block.
+6. Installing Emacs Application Framework requires some manual steps, as detailed below.
 
 The 'config.org' file will then tangle to 'init.el' when saved, so do that and restart emacs to load any changes.
 
 I'm building this out as I go. I'm not /too/ worried about start up time buuuuut I'm trying to keep things slim.
 *Citations* 
- - I took plenty of code blocks from David Wilson of https://systemcrafters.net/, his "emacs from scratch" series specificly.
+ - I took plenty of code blocks from David Wilson of https://systemcrafters.net/, his "emacs from scratch" series specifically.
  - Coming from DOOM emacs I also took a lot of inspiration from that project (Henrik Lissner) https://github.com/doomemacs/doomemacs.
  - A Life Configuring emacs, [[https://alhassy.github.io/][Musa Al-hassy]]
-
+   
 * early-init.el
 manual: https://www.gnu.org/software/emacs/manual/html_node/emacs/Early-Init-File.html
 This block tangles to the early-init file and has a safety check incase it tangles to init.el
@@ -30,8 +31,9 @@ This block tangles to the early-init file and has a safety check incase it tangl
 
 * Straight.el
 Repo: https://github.com/radian-software/straight.el
-Bootstrapping
+*Bootstrapping*
 #+begin_src emacs-lisp
+   ;;; -*- lexical-binding: t; -*-
   (setq straight-use-package-by-default t) ; use-package invokes straight.el
 
   (defvar bootstrap-version)
@@ -52,13 +54,25 @@ Bootstrapping
 
   (straight-use-package 'org) ; Reinstall Org
   (straight-use-package 'use-package)
+  (setq straight-vc-git-default-clone-depth '(1 single-branch))  
+  (setq use-package-verbose t) 
 #+end_src
 
 * Global Configuration
 #+begin_src emacs-lisp
-  (setq auto-save-default nil)
-  (recentf-mode +1)
-  (electric-pair-mode 1)
+  ;;(setq auto-save-default nil)
+  (setq auto-save-file-name-transforms '((".*" "~/.emacs.d/saves/" t)))
+  (setq
+     backup-by-copying t      ; don't clobber symlinks
+     backup-directory-alist
+      '(("." . "~/.emacs.d/saves/"))    ; don't litter my fs tree
+     delete-old-versions t
+     kept-new-versions 6
+     kept-old-versions 2
+     version-control t)       ; use versioned backups
+    
+    (recentf-mode +1)
+    (electric-pair-mode 1)
 #+end_src
 
 ** undo-tree
@@ -77,13 +91,314 @@ Bootstrapping
 
   (global-undo-tree-mode)
 #+end_src
+
+* DISABLED: Emacs Application Framework
+repo: https://github.com/emacs-eaf/emacs-application-framework
+
+Clone the repo
+#+begin_src shell
+  git clone --depth=1 -b master https://github.com/emacs-eaf/emacs-application-framework.git ~/.emacs.d/site-lisp/emacs-application-framework/;
+#+end_src
+
+then run install-eaf.py
+
+#+begin_src emacs-lisp :tangle no
+  (use-package eaf
+    :load-path "~/.emacs.d/site-lisp/emacs-application-framework"
+    :custom
+                                          ; See https://github.com/emacs-eaf/emacs-application-framework/wiki/Customization
+    (eaf-browser-continue-where-left-off t)
+    (eaf-browser-enable-adblocker t)
+    (browse-url-browser-function 'eaf-open-browser)
+    :config
+    (defalias 'browse-web #'eaf-open-browser)
+    ;;(eaf-bind-key scroll_up "C-n" eaf-pdf-viewer-keybinding)
+    ;;(eaf-bind-key scroll_down "C-p" eaf-pdf-viewer-keybinding)
+    ;;(eaf-bind-key take_photo "p" eaf-camera-keybinding)
+    ;;(eaf-bind-key nil "M-q" eaf-browser-keybinding)) ;; unbind, see more in the Wiki
+     
+
+  ;;(require 'eaf-file-manager)
+  ;;(require 'eaf-pyqterminal)
+  ;;(require 'eaf-image-viewer)
+  ;;(require 'eaf-system-monitor)
+  ;;(require 'eaf-pdf-viewer)
+  ;;(require 'eaf-mind-elixir)
+  ;;(require 'eaf-music-player)
+  ;;(require 'eaf-org-previewer)
+  ;;(require 'eaf-rss-reader)
+  ;;(require 'eaf-camera)
+  (require 'eaf-browser)
+  ;;(require 'eaf-markmap)
+  ;;(require 'eaf-video-player)
+  ;;(require 'eaf-markdown-previewer)
+  ;;(require 'eaf-mindmap)
+#+end_src
+
+* EXWM Emacs Window Manager
+User Guide: https://github.com/emacs-exwm/exwm/wiki
+
+*Adjust home folder path if needed*
+#+begin_src shell :tangle emacs.desktop
+  [Desktop Entry]
+  Name=EXWM
+  Exec=/home/connor/.emacs.d/start-exwm.sh
+  Type=Application
+#+end_src
+
+#+begin_src shell :tangle start-exwm.sh
+  #!/bin/sh
+  xrandr --output eDP-1 --primary --mode 1920x1080 --pos 1080x604 --rotate normal --output DP-1 --off --output HDMI-1 --off --output DP-2 --off --output HDMI-2 --mode 1920x1080 --pos 0x0 --rotate left;
+  picom &
+  exec emacs -mm --debug-init
+#+end_src
+
+Need to copy this to /usr/share/xsessions/emacs.desktop. Run manually 
+#+begin_src shell :tangle no :results list
+sudo cp emacs.desktop /usr/share/xsessions/
+#+end_src
+
+#+begin_src emacs-lisp
+   ;; Remap CapsLock to Ctrl
+   (start-process-shell-command "xmodmap" nil "xmodmap ~/.emacs.d/Xmodmap")
+   ;(defun efs/exwm-update-class ()
+   ;  (exwm-workspace-rename-buffer exwm-class-name))
+
+   (defun efs/run-in-background (command)
+     (let ((command-parts (split-string command "[ ]+")))
+       (apply #'call-process `(,(car command-parts) nil 0 nil ,@(cdr command-parts)))))
+
+   (defun dw/exwm-init-hook ()
+    ;; Make workspace 1 be the one where we land at startup
+    (exwm-workspace-switch-create 1))
+
+   (use-package exwm
+     :config
+     ;; Set the default number of workspaces
+     (setq exwm-workspace-number 5)
+
+     ;; THIS RUINS EVERYTHING
+     ;(add-hook 'exwm-init-hook #'efs/after-exwm-init)
+     
+     ;; When window "class" updates, use it to set the buffer name
+     ;(add-hook 'exwm-update-class-hook #'efs/exwm-update-class)
+
+     ;; These keys should always pass through to Emacs
+     (setq exwm-input-prefix-keys
+           '(?\C-x
+             ?\C-w
+             ?\C-u
+             ?\C-h
+             ?\M-x
+             ?\M-`
+             ?\M-&
+             ?\M-:
+             ?\C-\M-j  ;; Buffer list
+             ?\C-\ ))  ;; Ctrl+Space
+
+     ;; Ctrl+Q will enable the next key to be sent directly
+     (define-key exwm-mode-map [?\C-q] 'exwm-input-send-next-key)
+
+     ;; Set up global key bindings.  These always work, no matter the input state!
+     ;; Keep in mind that changing this list after EXWM initializes has no effect.
+     (setq exwm-input-global-keys
+           `(
+             ;; Reset to line-mode (C-c C-k switches to char-mode via exwm-input-release-keyboard)
+             ([?\s-r] . exwm-reset)
+
+             ;; Move between windows
+             ([?\s-h] . windmove-left)
+             ([?\s-l] . windmove-right)
+             ([?\s-k] . windmove-up)
+             ([?\s-j] . windmove-down)
+             ([?\s-c] . kill-current-buffer)
+             ([?\s-C] . kill-buffer-and-window)
+             ;; Launch applications via shell command
+             ([?\s-x] . (lambda (command)
+                          (interactive (list (read-shell-command "$ ")))
+                          (start-process-shell-command command nil command)))
+
+             ;; Switch workspace
+             ([?\s-w] . exwm-workspace-switch)
+
+             ;; 's-N': Switch to certain workspace with Super (Win) plus a number key (0 - 9)
+             ,@(mapcar (lambda (i)
+                         `(,(kbd (format "s-%d" i)) .
+                           (lambda ()
+                             (interactive)
+                             (exwm-workspace-switch-create ,i))))
+                       (number-sequence 0 9))))
+
+     (exwm-randr-mode)
+     (exwm-systemtray-mode)
+     (exwm-wm-mode))
+
+
+   (efs/run-in-background "nm-applet")
+   (display-battery-mode 1)
+   (setq display-time-day-and-date t)
+   (display-time-mode 1)
+
+   (use-package desktop-environment
+     :after exwm
+     :config (desktop-environment-mode)
+     :custom
+     (desktop-environment-brightness-small-increment "2%+")
+     (desktop-environment-brightness-small-decrement "2%-")
+     (desktop-environment-brightness-normal-increment "5%+")
+     (desktop-environment-brightness-normal-decrement "5%-"))
+
+  ;; Second monitor
+  ;; Causes crashes here, perhaps because monitor is slow to receive signal
+  ; (setq exwm-randr-workspace-monitor-plist '(2 "HDMI-2" 3 "HDMI-2"))
+  ; (exwm-randr-refresh)
+#+end_src
+
+** EXWM Second Monitor Fix
+This sucks and is a hack. I have to call this after the Second monitor is awake from standby and Emacs can see it. 
+#+begin_src emacs-lisp
+  (defun efs/exwm-update-class ()
+    "Rename EXWM buffer to match its class name."
+    (exwm-workspace-rename-buffer exwm-class-name))
+
+  (add-hook 'exwm-update-class-hook #'efs/exwm-update-class)
+
+  (defun m2-fix ()
+    "Set EXWM monitor configuration and refresh."
+    (interactive)
+    (setq exwm-randr-workspace-monitor-plist '(2 "HDMI-2" 3 "HDMI-2"))
+    (exwm-randr-refresh))
+  
+    ;;(setq exwm-randr-workspace-monitor-plist '(2 "HDMI-2" 3 "HDMI-2"))
+      ;;(exwm-randr-refresh)
+
+      ;; (defun efs/exwm-update-class ()
+      ;;   (exwm-workspace-rename-buffer exwm-class-name))
+      ;;(add-hook 'exwm-update-class-hook #'efs/exwm-update-class)
+#+end_src
+
+* PDF-tools
+repo: https://github.com/vedang/pdf-tools
+#+begin_src emacs-lisp
+  (use-package pdf-tools)
+#+end_src
+
 * Completion & Minibuffer
+** Consult
+repo: https://github.com/minad/consult
+wiki: https://github.com/minad/consult/wiki  
+#+begin_src emacs-lisp
+  ;; Example configuration for Consult
+  (use-package consult
+    ;; Replace bindings. Lazily loaded by `use-package'.
+    :bind (;; C-c bindings in `mode-specific-map'
+           ("C-c M-x" . consult-mode-command)
+           ("C-c h" . consult-history)
+           ("C-c k" . consult-kmacro)
+           ("C-c m" . consult-man)
+           ("C-c i" . consult-info)
+           ([remap Info-search] . consult-info)
+           ;; C-x bindings in `ctl-x-map'
+           ("C-x M-:" . consult-complex-command)     ;; orig. repeat-complex-command
+           ("C-x b" . consult-buffer)                ;; orig. switch-to-buffer
+           ("C-x 4 b" . consult-buffer-other-window) ;; orig. switch-to-buffer-other-window
+           ("C-x 5 b" . consult-buffer-other-frame)  ;; orig. switch-to-buffer-other-frame
+           ("C-x t b" . consult-buffer-other-tab)    ;; orig. switch-to-buffer-other-tab
+           ("C-x r b" . consult-bookmark)            ;; orig. bookmark-jump
+           ("C-x p b" . consult-project-buffer)      ;; orig. project-switch-to-buffer
+           ;; Custom M-# bindings for fast register access
+           ("M-#" . consult-register-load)
+           ("M-'" . consult-register-store)          ;; orig. abbrev-prefix-mark (unrelated)
+           ("C-M-#" . consult-register)
+           ;; Other custom bindings
+           ("M-y" . consult-yank-pop)                ;; orig. yank-pop
+           ;; M-g bindings in `goto-map'
+           ("M-g e" . consult-compile-error)
+           ("M-g r" . consult-grep-match)
+           ("M-g f" . consult-flymake)               ;; Alternative: consult-flycheck
+           ("M-g g" . consult-goto-line)             ;; orig. goto-line
+           ("M-g M-g" . consult-goto-line)           ;; orig. goto-line
+           ("M-g o" . consult-outline)               ;; Alternative: consult-org-heading
+           ("M-g m" . consult-mark)
+           ("M-g k" . consult-global-mark)
+           ("M-g i" . consult-imenu)
+           ("M-g I" . consult-imenu-multi)
+           ;; M-s bindings in `search-map'
+           ("M-s d" . consult-find)                  ;; Alternative: consult-fd
+           ("M-s c" . consult-locate)
+           ("M-s g" . consult-grep)
+           ("M-s G" . consult-git-grep)
+           ("M-s r" . consult-ripgrep)
+           ("M-s l" . consult-line)
+           ("M-s L" . consult-line-multi)
+           ("M-s k" . consult-keep-lines)
+           ("M-s u" . consult-focus-lines)
+           ;; Isearch integration
+           ("M-s e" . consult-isearch-history)
+           :map isearch-mode-map
+           ("M-e" . consult-isearch-history)         ;; orig. isearch-edit-string
+           ("M-s e" . consult-isearch-history)       ;; orig. isearch-edit-string
+           ("M-s l" . consult-line)                  ;; needed by consult-line to detect isearch
+           ("M-s L" . consult-line-multi)            ;; needed by consult-line to detect isearch
+           ;; Minibuffer history
+           :map minibuffer-local-map
+           ("M-s" . consult-history)                 ;; orig. next-matching-history-element
+           ("M-r" . consult-history))                ;; orig. previous-matching-history-element
+
+    ;; Enable automatic preview at point in the *Completions* buffer. This is
+    ;; relevant when you use the default completion UI.
+    :hook (completion-list-mode . consult-preview-at-point-mode)
+
+    ;; The :init configuration is always executed (Not lazy)
+    :init
+
+    ;; Tweak the register preview for `consult-register-load',
+    ;; `consult-register-store' and the built-in commands.  This improves the
+    ;; register formatting, adds thin separator lines, register sorting and hides
+    ;; the window mode line.
+    (advice-add #'register-preview :override #'consult-register-window)
+    (setq register-preview-delay 0.5)
+
+    ;; Use Consult to select xref locations with preview
+    (setq xref-show-xrefs-function #'consult-xref
+          xref-show-definitions-function #'consult-xref)
+
+    ;; Configure other variables and modes in the :config section,
+    ;; after lazily loading the package.
+    :config
+
+    ;; Optionally configure preview. The default value
+    ;; is 'any, such that any key triggers the preview.
+    ;; (setq consult-preview-key 'any)
+    ;; (setq consult-preview-key "M-.")
+    ;; (setq consult-preview-key '("S-<down>" "S-<up>"))
+    ;; For some commands and buffer sources it is useful to configure the
+    ;; :preview-key on a per-command basis using the `consult-customize' macro.
+    (consult-customize
+     consult-theme :preview-key '(:debounce 0.2 any)
+     consult-ripgrep consult-git-grep consult-grep consult-man
+     consult-bookmark consult-recent-file consult-xref
+     consult--source-bookmark consult--source-file-register
+     consult--source-recent-file consult--source-project-recent-file
+     ;; :preview-key "M-."
+     :preview-key '(:debounce 0.4 any))
+
+    ;; Optionally configure the narrowing key.
+    ;; Both < and C-+ work reasonably well.
+    (setq consult-narrow-key "<") ;; "C-+"
+
+    ;; Optionally make narrowing help available in the minibuffer.
+    ;; You may want to use `embark-prefix-help-command' or which-key instead.
+    ;; (keymap-set consult-narrow-map (concat consult-narrow-key " ?") #'consult-narrow-help)
+    )
+#+end_src
+
 ** Vertico & Extensions
 Repos:
 - [[https://github.com/minad/vertico][vertico]]
-- [[https://github.com/minad/marginalia][marginalia]]
+- [[https://github.com/minad/marginalia][marginalia]] adds details to options in the completion minibuffers
 - [[https://github.com/oantolin/orderless][orderless]]
-Marginalia adds details to options in the completion minibuffers
+
 #+begin_src emacs-lisp
   (use-package vertico
     :ensure t
@@ -103,11 +418,13 @@ Marginalia adds details to options in the completion minibuffers
     (savehist-mode))
 
   (use-package marginalia
-    :after vertico
-    :ensure t
-    :custom
-    (marginalia-annotators '(marginalia-annotators-heavy marginalia-annotators-light nil))
+    ;; Bind `marginalia-cycle' locally in the minibuffer.  To make the binding
+    ;; available in the *Completions* buffer, add it to the
+    ;; `completion-list-mode-map'.
+    :bind (:map minibuffer-local-map
+                ("M-A" . marginalia-cycle))
     :init
+    ;; Marginalia must be activated in the :init section of use-package such that
     (marginalia-mode))
 
   (use-package nerd-icons-completion
@@ -127,10 +444,8 @@ Marginalia adds details to options in the completion minibuffers
   (keymap-set vertico-map "TAB" #'minibuffer-complete)
 #+end_src
 
-#+RESULTS:
-
 ** Which-key
-Repo: https://github.com/justbur/emacs-which-key (ARCHIVED)
+Repo: https://github.com/justbur/emacs-which-key (ARCHIVED part of Emacs now)
 #+begin_src emacs-lisp
   (use-package which-key
     :init (which-key-mode)
@@ -154,8 +469,11 @@ Repo: https://github.com/justbur/emacs-which-key (ARCHIVED)
     "SPC f c"   "Config"
     "SPC f r"   "find Recent"
     "SPC n"     "Notes"
-    "SPC n r u" "Roam Ui"
-    "SPC n r f" "Roam Find-node")
+    "SPC n i" "Note Insert link"
+    "SPC n l" "Note Links buffer toggle"
+    "SPC n c" "Note Create (add id to heading)"
+    "SPC n u" "Note Ui"
+    "SPC n f" "Note Find-node")
 
   ;; paging doesn't seem to work in which-key
   (global-set-key [next] 'which-key-show-next-page-cycle)
@@ -198,12 +516,12 @@ Repo: https://github.com/Wilfred/helpful
 #+begin_src emacs-lisp
   (use-package helpful
     :bind (
-  	 :map helpful-mode-map
-  	 ("<escape>" . 'kill-buffer-and-window)))
+    	 :map helpful-mode-map
+    	 ("<escape>" . 'kill-buffer-and-window)))
 
   (global-set-key (kbd "C-h f") #'helpful-callable)
-
   (global-set-key (kbd "C-h v") #'helpful-variable)
+  (global-set-key (kbd "C-h o") #'helpful-symbol)
   (global-set-key (kbd "C-h k") #'helpful-key)
   (global-set-key (kbd "C-h x") #'helpful-command)
   (global-set-key (kbd "C-h C-h") #'helpful-at-point)
@@ -250,16 +568,21 @@ Docs/Repo:
   (define-key global-map (kbd "C-SPC") 'leader-key)
 
   (dolist (pair '((":"   . execute-extended-command)
+  		("."   . embark-act)
   		("f r" . recentf)
   		("f c" . (lambda () 
                              (interactive) 
                              (find-file (expand-file-name "~/.emacs.d/config.org"))))
   		("f s" . write-file)
-  		("n r u" . org-roam-ui-mode)
-  		("n r f" . org-roam-node-find)
+  		("n u" . org-roam-ui-mode)
+  		("n f" . org-roam-node-find)
+  		("n i" . org-roam-node-insert)
+  		("n c" . org-id-get-create)
+  		("n l" . org-roam-buffer-toggle)
   		("b b" . consult-buffer)
   		("o t" . vterm-other-window)
-  		("b d" . evil-delete-buffer)
+  		("b k" . kill-current-buffer)
+  		("b K" . kill-buffer-and-window)
   		("b n" . next-buffer)
                   ("g"   . magit-status)))
     (define-key leader-key (kbd (car pair)) (cdr pair)))
@@ -306,19 +629,113 @@ Docs: https://protesilaos.com/emacs/modus-themes
     (load-theme 'modus-operandi-tinted :no-confirm))
 #+end_src
 
-Manual: https://protesilaos.com/emacs/ef-themes#h:dd9e06f2-eef0-4afe-8a12-b7af5d597108
+Manual: https://protesilaos.com/emacs/ef-themes
 #+begin_src emacs-lisp 
   (use-package ef-themes
+    :straight (:type git :host github :repo "protesilaos/ef-themes")
+    :init
+    (modus-themes-include-derivatives-mode 1)
     :config
     (setq ef-eagle-palette-overrides
           '((link cyan)))
     (setq ef-themes-to-toggle '(ef-eagle ef-elea-dark))
     (mapc #'disable-theme custom-enabled-themes)
-    (setq ef-themes-mixed-fonts t)
-    :bind
-    (("C-c t" . ef-themes-toggle)))
-    (ef-themes-select 'ef-eagle)
+    (setq modus-themes-mixed-fonts t)
+    (setq modus-themes-italic-constructs t)
+    (modus-themes-load-theme 'ef-eagle))
 #+end_src
+
+** Fonts
+#+begin_src emacs-lisp
+  (use-package fontaine)
+
+  (setq fontaine-latest-state-file
+        (locate-user-emacs-file "fontaine-latest-state.eld"))
+
+  ;; Aporetic is my highly customised build of Iosevka:
+  ;; <https://github.com/protesilaos/aporetic>.
+  (setq fontaine-presets
+        '((small
+           :default-family "Iosevka"
+           :default-height 80
+           :variable-pitch-family "Iosevka Aile") ;Aile
+          (regular) ; like this it uses all the fallback values and is named `regular'
+          (medium
+           :default-weight semilight
+           :default-height 115
+           :bold-weight extrabold)
+          (large
+           :inherit medium
+           :default-height 150)
+          (presentation
+           :default-height 180)
+          (t
+           ;; I keep all properties for didactic purposes, but most can be
+           ;; omitted.  See the fontaine manual for the technicalities:
+           ;; <https://protesilaos.com/emacs/fontaine>.
+           :default-family "Iosevka"
+           :default-weight regular
+           :default-height 100
+
+           :fixed-pitch-family nil ; falls back to :default-family
+           :fixed-pitch-weight nil ; falls back to :default-weight
+           :fixed-pitch-height 1.0
+
+           :fixed-pitch-serif-family nil ; falls back to :default-family
+           :fixed-pitch-serif-weight nil ; falls back to :default-weight
+           :fixed-pitch-serif-height 1.0
+
+           :variable-pitch-family "Iosevka Aile" ;Aile
+           :variable-pitch-weight nil
+           :variable-pitch-height 1.0
+
+           :mode-line-active-family nil ; falls back to :default-family
+           :mode-line-active-weight nil ; falls back to :default-weight
+           :mode-line-active-height 0.9
+
+           :mode-line-inactive-family nil ; falls back to :default-family
+           :mode-line-inactive-weight nil ; falls back to :default-weight
+           :mode-line-inactive-height 0.9
+
+           :header-line-family nil ; falls back to :default-family
+           :header-line-weight nil ; falls back to :default-weight
+           :header-line-height 0.9
+
+           :line-number-family nil ; falls back to :default-family
+           :line-number-weight nil ; falls back to :default-weight
+           :line-number-height 0.9
+
+           :tab-bar-family nil ; falls back to :default-family
+           :tab-bar-weight nil ; falls back to :default-weight
+           :tab-bar-height 1.0
+
+           :tab-line-family nil ; falls back to :default-family
+           :tab-line-weight nil ; falls back to :default-weight
+           :tab-line-height 1.0
+
+           :bold-family nil ; use whatever the underlying face has
+           :bold-weight bold
+
+           :italic-family nil
+           :italic-slant italic
+
+           :line-spacing nil)))
+
+  ;; Set the last preset or fall back to desired style from `fontaine-presets'
+  ;; (the `regular' in this case).
+  (fontaine-set-preset (or (fontaine-restore-latest-preset) 'regular))
+
+  ;; Persist the latest font preset when closing/starting Emacs and
+  ;; while switching between themes.
+  (fontaine-mode 1)
+
+  ;; fontaine does not define any key bindings.  This is just a sample that
+  ;; respects the key binding conventions.  Evaluate:
+  ;;
+  ;;     (info "(elisp) Key Binding Conventions")
+  (define-key global-map (kbd "C-c f") #'fontaine-set-preset)
+#+end_src
+
 ** Scrolling
 Repo: https://github.com/zk-phi/sublimity
 #+begin_src emacs-lisp
@@ -372,7 +789,8 @@ Worg: https://orgmode.org/worg/
     (org-indent-mode)
     (variable-pitch-mode 1)
     (visual-line-mode 1)
-    (org-superstar-mode))
+    (org-superstar-mode)
+    (flyspell-mode 1))
 
   (use-package org
     :hook
@@ -382,14 +800,14 @@ Worg: https://orgmode.org/worg/
     
     ;; Replace list hyphen with dot
     (font-lock-add-keywords 'org-mode
-        			  '(("^ *\\([-]\\) "
-        			     (0 (prog1 () (compose-region (match-beginning 1) (match-end 1) "•"))))))
+          		  '(("^ *\\([-]\\) "
+          		     (0 (prog1 () (compose-region (match-beginning 1) (match-end 1) "•"))))))
 
     ;; Set faces for heading levels
-    (dolist (face '((org-level-1 . 1.2)
-                    (org-level-2 . 1.1)
-                    (org-level-3 . 1.05)
-                    (org-level-4 . 1.0)
+    (dolist (face '((org-level-1 . 1.4)
+                    (org-level-2 . 1.2)
+                    (org-level-3 . 1.1)
+                    (org-level-4 . 1.1)
                     (org-level-5 . 1.1)
                     (org-level-6 . 1.1)
                     (org-level-7 . 1.1)
@@ -397,6 +815,8 @@ Worg: https://orgmode.org/worg/
       (set-face-attribute (car face) nil :height (cdr face)))
 
     ;; Ensure that anything that should be fixed-pitch in Org files appears that way
+  					;(set-face-attribute 'fixed-pitch nil :font "BlexMono Nerd Font") 
+    
     (set-face-attribute 'org-block nil :foreground nil :inherit 'fixed-pitch)
     (set-face-attribute 'org-code nil   :inherit '(shadow fixed-pitch))
     (set-face-attribute 'org-table nil   :inherit '(shadow fixed-pitch))
@@ -404,6 +824,11 @@ Worg: https://orgmode.org/worg/
     (set-face-attribute 'org-special-keyword nil :inherit '(font-lock-comment-face fixed-pitch))
     (set-face-attribute 'org-meta-line nil :inherit '(font-lock-comment-face fixed-pitch))
     (set-face-attribute 'org-checkbox nil :inherit 'fixed-pitch))
+
+  ;; mmmmmm
+  ;; nnnnnn
+  ;; 000000
+  ;; wwwwww
 
   ;;(setq org-superstar-headline-bullets-list '("◉" ("🞛" ?◈) "○" "▷"))
 
@@ -443,13 +868,12 @@ Home Page: https://orgmode.org/worg/org-contrib/babel/
      (shell . t)))
   (push '("conf-unix" . conf-unix) org-src-lang-modes)
 
-  ;; Automatically tangle our Emacs.org config file when we save it
+  ;; Automatically tangle our config.org config file when we save it
   (defun efs/org-babel-tangle-config ()
-    (when (string-equal (file-name-nondirectory (buffer-file-name)) "config.org")
-      ;; Dynamic scoping to the rescue
-      (let ((org-confirm-babel-evaluate nil))
-        (org-babel-tangle))))
+    (org-babel-tangle))
   (add-hook 'org-mode-hook (lambda () (add-hook 'after-save-hook #'efs/org-babel-tangle-config)))
+
+  (setq org-confirm-babel-evaluate nil)
 
   (require 'org-tempo)
   (add-to-list 'org-structure-template-alist '("sh" . "src shell"))
@@ -482,9 +906,9 @@ Manual: https://www.orgroam.com/manual.html
           org-roam-ui-update-on-save t
           org-roam-ui-open-on-start t))
 #+end_src
-** howm
+** DISABLED: howm
 Home: https://kaorahi.github.io/howm/
-#+begin_src emacs-lisp
+#+begin_src emacs-lisp :tangle no
   (setq howm-view-use-grep t)  ;; use external grep
   (use-package howm
     :ensure t
@@ -499,8 +923,8 @@ Home: https://kaorahi.github.io/howm/
     :bind*
     ;; Conveniently open the Howm menu with "C-c ; ;".
     ("C-c ; ;" . howm-menu))
-  
-;;(setq howm-template "* #+title: %cursor\n%date\n\n")
+
+  ;;(setq howm-template "* #+title: %cursor\n%date\n\n")
 #+end_src
 ** TODO ob-mermaid
 Repo: https://github.com/arnm/ob-mermaid
@@ -520,7 +944,7 @@ Reference Card: https://magit.vc/manual/magit-refcard.pdf
   (use-package evil-magit
     :after magit)
 #+end_src
-** Lsp-mode
+** TODO Lsp-mode
 Docs: https://emacs-lsp.github.io/lsp-mode/
 #+begin_src emacs-lisp
   (defun efs/lsp-mode-setup ()
@@ -597,25 +1021,23 @@ lsp-mode integration: https://emacs-lsp.github.io/lsp-mode/page/languages/
 
   (setq lsp-java-vmargs '("-XX:+UseParallelGC" "-XX:GCTimeRatio=4" "-XX:AdaptiveSizePolicyWeight=90" "-XX:+UseStringDeduplication" "-Dsun.zip.disableMemoryMapping=true" "-Xmx4G" "-Xms100m"))
 #+end_src
-*** C#
-#+begin_src emacs-lisp
 
-#+end_src
 *** JS/TS
 Docs: https://docs.deno.com/
 #+begin_src emacs-lisp
-  (setq lsp-clients-deno-server "/home/connor/.deno/bin/deno")
+  (setq lsp-clients-deno-server
+        (expand-file-name "~/.deno/bin/deno"))
   (setq lsp-clients-deno-enable-lint t)
 #+end_src
-* Utilites
+* Utilities
 ** vterm
 #+begin_src emacs-lisp
   (use-package vterm
     :ensure t)
 #+end_src
-** Treemacs
+** DISABLED: Treemacs
 Repo: https://github.com/Alexander-Miller/treemacs
-#+begin_src emacs-lisp
+#+begin_src emacs-lisp :tangle no
   (use-package treemacs
     :ensure t
     :defer t
@@ -722,17 +1144,7 @@ Repo: https://github.com/Alexander-Miller/treemacs
     :after (treemacs magit)
     :ensure t)
 
-  ;;(use-package treemacs-persp ;;treemacs-perspective if you use perspective.el vs. persp-mode
-  ;;  :after (treemacs persp-mode) ;;or perspective vs. persp-mode
-  ;;  :ensure t
-  ;;  :config (treemacs-set-scope-type 'Perspectives))
-
-  ;;(use-package treemacs-tab-bar ;;treemacs-tab-bar if you use tab-bar-mode
-  ;;  :after (treemacs)
-  ;;  :ensure t
-  ;;  :config (treemacs-set-scope-type 'Tabs))
-
-  (treemacs-start-on-boot)
+  ;;(treemacs-start-on-boot)
 #+end_src
 * Performance
 ** lsp-mode 
@@ -750,7 +1162,6 @@ Emacs LSP performance booster: https://github.com/blahgeek/emacs-lsp-booster
 #+begin_src sh
   cargo install emacs-lsp-booster
 #+end_src
-#+RESULTS:
 
 #+begin_src emacs-lisp
   (defun lsp-booster--advice-json-parse (old-fn &rest args)
@@ -787,12 +1198,10 @@ Emacs LSP performance booster: https://github.com/blahgeek/emacs-lsp-booster
 
 * TODO 
 ** TODO Set up lsp-mode
-*** Add bindings for Lsp-mode
+*** Add bindings for lsp-mode
 *** check out dap-mode debugger
-** DONE pop-up terminal
 ** TODO Profile helpful, it's very slow on initial run
 ** TODO Investigate switching to elpaca
-** TODO Fonts don't work
 ** TODO Checkout ebook packages
 - https://github.com/bddean/emacs-ereader
   or
