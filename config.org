@@ -15,10 +15,10 @@ The 'config.org' file will then tangle to 'init.el' when saved, so do that and r
 
 I'm building this out as I go. I'm not /too/ worried about start up time buuuuut I'm trying to keep things slim.
 *Citations* 
- - I took plenty of code blocks from David Wilson of https://systemcrafters.net/, his "emacs from scratch" series specifically.
- - Coming from DOOM emacs I also took a lot of inspiration from that project (Henrik Lissner) https://github.com/doomemacs/doomemacs.
- - A Life Configuring emacs, [[https://alhassy.github.io/][Musa Al-hassy]]
-   
+- I took plenty of code blocks from David Wilson of https://systemcrafters.net/, his "emacs from scratch" series specifically.
+- Coming from DOOM emacs I also took a lot of inspiration from that project (Henrik Lissner) https://github.com/doomemacs/doomemacs.
+- A Life Configuring emacs, [[https://alhassy.github.io/][Musa Al-hassy]]
+
 * early-init.el
 manual: https://www.gnu.org/software/emacs/manual/html_node/emacs/Early-Init-File.html
 This block tangles to the early-init file and has a safety check incase it tangles to init.el
@@ -63,16 +63,19 @@ Repo: https://github.com/radian-software/straight.el
   ;;(setq auto-save-default nil)
   (setq auto-save-file-name-transforms '((".*" "~/.emacs.d/saves/" t)))
   (setq
-     backup-by-copying t      ; don't clobber symlinks
-     backup-directory-alist
-      '(("." . "~/.emacs.d/saves/"))    ; don't litter my fs tree
-     delete-old-versions t
-     kept-new-versions 6
-     kept-old-versions 2
-     version-control t)       ; use versioned backups
-    
-    (recentf-mode +1)
-    (electric-pair-mode 1)
+   backup-by-copying t                    ; don't clobber symlinks
+   backup-directory-alist
+   '(("." . "~/.emacs.d/saves/"))         ; no more littering of backups
+   delete-old-versions t
+   kept-new-versions 6
+   kept-old-versions 2
+   version-control t                      ; use versioned backups
+   global-auto-revert-non-file-buffers t) ; update things like dired
+
+  (global-auto-revert-mode 1)             ; update buffers when files change
+  (save-place-mode 1)                     ; remember cursor location
+  (recentf-mode +1)
+  (electric-pair-mode 1)
 #+end_src
 
 ** undo-tree
@@ -116,23 +119,23 @@ then run install-eaf.py
     ;;(eaf-bind-key scroll_down "C-p" eaf-pdf-viewer-keybinding)
     ;;(eaf-bind-key take_photo "p" eaf-camera-keybinding)
     ;;(eaf-bind-key nil "M-q" eaf-browser-keybinding)) ;; unbind, see more in the Wiki
-     
+    
 
-  ;;(require 'eaf-file-manager)
-  ;;(require 'eaf-pyqterminal)
-  ;;(require 'eaf-image-viewer)
-  ;;(require 'eaf-system-monitor)
-  ;;(require 'eaf-pdf-viewer)
-  ;;(require 'eaf-mind-elixir)
-  ;;(require 'eaf-music-player)
-  ;;(require 'eaf-org-previewer)
-  ;;(require 'eaf-rss-reader)
-  ;;(require 'eaf-camera)
-  (require 'eaf-browser)
-  ;;(require 'eaf-markmap)
-  ;;(require 'eaf-video-player)
-  ;;(require 'eaf-markdown-previewer)
-  ;;(require 'eaf-mindmap)
+    ;;(require 'eaf-file-manager)
+    ;;(require 'eaf-pyqterminal)
+    ;;(require 'eaf-image-viewer)
+    ;;(require 'eaf-system-monitor)
+    ;;(require 'eaf-pdf-viewer)
+    ;;(require 'eaf-mind-elixir)
+    ;;(require 'eaf-music-player)
+    ;;(require 'eaf-org-previewer)
+    ;;(require 'eaf-rss-reader)
+    ;;(require 'eaf-camera)
+    (require 'eaf-browser)
+    ;;(require 'eaf-markmap)
+    ;;(require 'eaf-video-player)
+    ;;(require 'eaf-markdown-previewer)
+    ;;(require 'eaf-mindmap)
 #+end_src
 
 * EXWM Emacs Window Manager
@@ -155,103 +158,98 @@ User Guide: https://github.com/emacs-exwm/exwm/wiki
 
 Need to copy this to /usr/share/xsessions/emacs.desktop. Run manually 
 #+begin_src shell :tangle no :results list
-sudo cp emacs.desktop /usr/share/xsessions/
+  sudo cp emacs.desktop /usr/share/xsessions/
 #+end_src
 
 #+begin_src emacs-lisp
-   ;; Remap CapsLock to Ctrl
-   (start-process-shell-command "xmodmap" nil "xmodmap ~/.emacs.d/Xmodmap")
-   ;(defun efs/exwm-update-class ()
-   ;  (exwm-workspace-rename-buffer exwm-class-name))
+  ;; Remap CapsLock to Ctrl
+  (start-process-shell-command "xmodmap" nil "xmodmap ~/.emacs.d/Xmodmap")
+  					;(defun efs/exwm-update-class ()
+  					;  (exwm-workspace-rename-buffer exwm-class-name))
 
-   (defun efs/run-in-background (command)
-     (let ((command-parts (split-string command "[ ]+")))
-       (apply #'call-process `(,(car command-parts) nil 0 nil ,@(cdr command-parts)))))
+  (defun efs/run-in-background (command)
+    (let ((command-parts (split-string command "[ ]+")))
+      (apply #'call-process `(,(car command-parts) nil 0 nil ,@(cdr command-parts)))))
 
-   (defun dw/exwm-init-hook ()
+  (defun dw/exwm-init-hook ()
     ;; Make workspace 1 be the one where we land at startup
     (exwm-workspace-switch-create 1))
 
-   (use-package exwm
-     :config
-     ;; Set the default number of workspaces
-     (setq exwm-workspace-number 5)
+  (use-package exwm
+    :config
+    ;; Set the default number of workspaces
+    (setq exwm-workspace-number 5)
 
-     ;; THIS RUINS EVERYTHING
-     ;(add-hook 'exwm-init-hook #'efs/after-exwm-init)
-     
-     ;; When window "class" updates, use it to set the buffer name
-     ;(add-hook 'exwm-update-class-hook #'efs/exwm-update-class)
+    ;; THIS RUINS EVERYTHING
+  					;(add-hook 'exwm-init-hook #'efs/after-exwm-init)
+    
+    ;; When window "class" updates, use it to set the buffer name
+  					;(add-hook 'exwm-update-class-hook #'efs/exwm-update-class)
 
-     ;; These keys should always pass through to Emacs
-     (setq exwm-input-prefix-keys
-           '(?\C-x
-             ?\C-w
-             ?\C-u
-             ?\C-h
-             ?\M-x
-             ?\M-`
-             ?\M-&
-             ?\M-:
-             ?\C-\M-j  ;; Buffer list
-             ?\C-\ ))  ;; Ctrl+Space
+    ;; These keys should always pass through to Emacs
+    (setq exwm-input-prefix-keys
+          '(?\C-x
+            ?\C-w
+            ?\C-u
+            ?\C-h
+            ?\M-x
+            ?\M-`
+            ?\M-&
+            ?\M-:
+            ?\C-\M-j  ;; Buffer list
+            ?\C-\ ))  ;; Ctrl+Space
 
-     ;; Ctrl+Q will enable the next key to be sent directly
-     (define-key exwm-mode-map [?\C-q] 'exwm-input-send-next-key)
+    ;; Ctrl+Q will enable the next key to be sent directly
+    (define-key exwm-mode-map [?\C-q] 'exwm-input-send-next-key)
 
-     ;; Set up global key bindings.  These always work, no matter the input state!
-     ;; Keep in mind that changing this list after EXWM initializes has no effect.
-     (setq exwm-input-global-keys
-           `(
-             ;; Reset to line-mode (C-c C-k switches to char-mode via exwm-input-release-keyboard)
-             ([?\s-r] . exwm-reset)
+    ;; Set up global key bindings.  These always work, no matter the input state!
+    ;; Keep in mind that changing this list after EXWM initializes has no effect.
+    (setq exwm-input-global-keys
+          `(
+            ;; Reset to line-mode (C-c C-k switches to char-mode via exwm-input-release-keyboard)
+            ([?\s-r] . exwm-reset)
 
-             ;; Move between windows
-             ([?\s-h] . windmove-left)
-             ([?\s-l] . windmove-right)
-             ([?\s-k] . windmove-up)
-             ([?\s-j] . windmove-down)
-             ([?\s-c] . kill-current-buffer)
-             ([?\s-C] . kill-buffer-and-window)
-             ;; Launch applications via shell command
-             ([?\s-x] . (lambda (command)
-                          (interactive (list (read-shell-command "$ ")))
-                          (start-process-shell-command command nil command)))
+            ;; Move between windows
+            ([?\s-h] . windmove-left)
+            ([?\s-l] . windmove-right)
+            ([?\s-k] . windmove-up)
+            ([?\s-j] . windmove-down)
+            ([?\s-c] . kill-current-buffer)
+            ([?\s-C] . kill-buffer-and-window)
+            ;; Launch applications via shell command
+            ([?\s-x] . (lambda (command)
+                         (interactive (list (read-shell-command "$ ")))
+                         (start-process-shell-command command nil command)))
 
-             ;; Switch workspace
-             ([?\s-w] . exwm-workspace-switch)
+            ;; Switch workspace
+            ([?\s-w] . exwm-workspace-switch)
 
-             ;; 's-N': Switch to certain workspace with Super (Win) plus a number key (0 - 9)
-             ,@(mapcar (lambda (i)
-                         `(,(kbd (format "s-%d" i)) .
-                           (lambda ()
-                             (interactive)
-                             (exwm-workspace-switch-create ,i))))
-                       (number-sequence 0 9))))
+            ;; 's-N': Switch to certain workspace with Super (Win) plus a number key (0 - 9)
+            ,@(mapcar (lambda (i)
+                        `(,(kbd (format "s-%d" i)) .
+                          (lambda ()
+                            (interactive)
+                            (exwm-workspace-switch-create ,i))))
+                      (number-sequence 0 9))))
 
-     (exwm-randr-mode)
-     (exwm-systemtray-mode)
-     (exwm-wm-mode))
+    (exwm-randr-mode)
+    (exwm-systemtray-mode)
+    (exwm-wm-mode))
 
 
-   (efs/run-in-background "nm-applet")
-   (display-battery-mode 1)
-   (setq display-time-day-and-date t)
-   (display-time-mode 1)
+  (efs/run-in-background "nm-applet")
+  (display-battery-mode 1)
+  (setq display-time-day-and-date t)
+  (display-time-mode 1)
 
-   (use-package desktop-environment
-     :after exwm
-     :config (desktop-environment-mode)
-     :custom
-     (desktop-environment-brightness-small-increment "2%+")
-     (desktop-environment-brightness-small-decrement "2%-")
-     (desktop-environment-brightness-normal-increment "5%+")
-     (desktop-environment-brightness-normal-decrement "5%-"))
-
-  ;; Second monitor
-  ;; Causes crashes here, perhaps because monitor is slow to receive signal
-  ; (setq exwm-randr-workspace-monitor-plist '(2 "HDMI-2" 3 "HDMI-2"))
-  ; (exwm-randr-refresh)
+  (use-package desktop-environment
+    :after exwm
+    :config (desktop-environment-mode)
+    :custom
+    (desktop-environment-brightness-small-increment "2%+")
+    (desktop-environment-brightness-small-decrement "2%-")
+    (desktop-environment-brightness-normal-increment "5%+")
+    (desktop-environment-brightness-normal-decrement "5%-"))
 #+end_src
 
 ** EXWM Second Monitor Fix
@@ -268,13 +266,6 @@ This sucks and is a hack. I have to call this after the Second monitor is awake 
     (interactive)
     (setq exwm-randr-workspace-monitor-plist '(2 "HDMI-2" 3 "HDMI-2"))
     (exwm-randr-refresh))
-  
-    ;;(setq exwm-randr-workspace-monitor-plist '(2 "HDMI-2" 3 "HDMI-2"))
-      ;;(exwm-randr-refresh)
-
-      ;; (defun efs/exwm-update-class ()
-      ;;   (exwm-workspace-rename-buffer exwm-class-name))
-      ;;(add-hook 'exwm-update-class-hook #'efs/exwm-update-class)
 #+end_src
 
 * PDF-tools
@@ -652,8 +643,6 @@ Manual: https://protesilaos.com/emacs/ef-themes
   (setq fontaine-latest-state-file
         (locate-user-emacs-file "fontaine-latest-state.eld"))
 
-  ;; Aporetic is my highly customised build of Iosevka:
-  ;; <https://github.com/protesilaos/aporetic>.
   (setq fontaine-presets
         '((small
            :default-family "Iosevka"
@@ -790,7 +779,10 @@ Worg: https://orgmode.org/worg/
     (variable-pitch-mode 1)
     (visual-line-mode 1)
     (org-superstar-mode)
-    (flyspell-mode 1))
+    (flyspell-mode 1)
+    (global-visual-fill-column-mode)
+    (set-fill-column 120)
+    (visual-fill-column-toggle-center-text))
 
   (use-package org
     :hook
@@ -825,6 +817,7 @@ Worg: https://orgmode.org/worg/
     (set-face-attribute 'org-meta-line nil :inherit '(font-lock-comment-face fixed-pitch))
     (set-face-attribute 'org-checkbox nil :inherit 'fixed-pitch))
 
+  ;; fixed width font check
   ;; mmmmmm
   ;; nnnnnn
   ;; 000000
@@ -833,8 +826,8 @@ Worg: https://orgmode.org/worg/
   ;;(setq org-superstar-headline-bullets-list '("◉" ("🞛" ?◈) "○" "▷"))
 
   (setq org-superstar-headline-bullets-list '("◉" "◈" "○" "▷"))
-
   (use-package org-superstar)
+  (use-package visual-fill-column)
   (setq org-hide-emphasis-markers t)
 #+end_src
 
@@ -843,8 +836,8 @@ Docs (worg): https://orgmode.org/worg/org-contrib/babel/intro.html
 Home Page: https://orgmode.org/worg/org-contrib/babel/
 
 *Structure Templates* can be inserted by typing  *<i <TAB>*  where 'i' is one of:
-| Specifier | Block Type                              |
-|-----------+-----------------------------------------|
+| Specifier | Block Type                               |
+|-----------+------------------------------------------|
 | a         | ‘#+begin_export ascii’ … ‘#+end_export’ |
 | c         | ‘#+begin_center’ … ‘#+end_center’       |
 | c         | ‘#+begin_comment’ … ‘#+end_comment’     |
@@ -854,9 +847,9 @@ Home Page: https://orgmode.org/worg/org-contrib/babel/
 | l         | ‘#+begin_export latex’ … ‘#+end_export’ |
 | q         | ‘#+begin_quote’ … ‘#+end_quote’         |
 | s         | ‘#+begin_src’ … ‘#+end_src’             |
-| sh        | shell                                   |
-| el        | emacs-lisp                              |
-| py        | python                                  |
+| sh        | shell                                    |
+| el        | emacs-lisp                               |
+| py        | python                                   |
 | v         | ‘#+begin_verse’ … ‘#+end_verse’         |
 
 #+begin_src emacs-lisp
@@ -868,12 +861,12 @@ Home Page: https://orgmode.org/worg/org-contrib/babel/
      (shell . t)))
   (push '("conf-unix" . conf-unix) org-src-lang-modes)
 
-  ;; Automatically tangle our config.org config file when we save it
+  ;; Automatically tangle config.org config file 
   (defun efs/org-babel-tangle-config ()
-    (org-babel-tangle))
+    (when (string-equal (file-name-nondirectory (buffer-file-name)) "config.org")
+      (let ((org-confirm-babel-evaluate nil))
+        (org-babel-tangle))))
   (add-hook 'org-mode-hook (lambda () (add-hook 'after-save-hook #'efs/org-babel-tangle-config)))
-
-  (setq org-confirm-babel-evaluate nil)
 
   (require 'org-tempo)
   (add-to-list 'org-structure-template-alist '("sh" . "src shell"))
