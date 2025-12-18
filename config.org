@@ -255,17 +255,21 @@ Need to copy this to /usr/share/xsessions/emacs.desktop. Run manually
 ** EXWM Second Monitor Fix
 This sucks and is a hack. I have to call this after the Second monitor is awake from standby and Emacs can see it. 
 #+begin_src emacs-lisp
-  (defun efs/exwm-update-class ()
-    "Rename EXWM buffer to match its class name."
-    (exwm-workspace-rename-buffer exwm-class-name))
+   (defun efs/exwm-update-class ()
+     "Rename EXWM buffer to match its class name."
+     (exwm-workspace-rename-buffer exwm-class-name))
 
-  (add-hook 'exwm-update-class-hook #'efs/exwm-update-class)
+   (add-hook 'exwm-update-class-hook #'efs/exwm-update-class)
 
-  (defun m2-fix ()
-    "Set EXWM monitor configuration and refresh."
+   (defun m2-fix ()
+     "Set EXWM monitor configuration and refresh."
+     (interactive)
+     (setq exwm-randr-workspace-monitor-plist '(2 "HDMI-2" 3 "HDMI-2"))
+     (exwm-randr-refresh))
+
+  (defun capsFix ()
     (interactive)
-    (setq exwm-randr-workspace-monitor-plist '(2 "HDMI-2" 3 "HDMI-2"))
-    (exwm-randr-refresh))
+    (start-process-shell-command "xmodmap" nil "xmodmap ~/.emacs.d/Xmodmap")) 
 #+end_src
 
 * PDF-tools
@@ -571,6 +575,7 @@ Docs/Repo:
   		("n c" . org-id-get-create)
   		("n l" . org-roam-buffer-toggle)
   		("b b" . consult-buffer)
+  		("t" . vterm-toggle)
   		("o t" . vterm-other-window)
   		("b k" . kill-current-buffer)
   		("b K" . kill-buffer-and-window)
@@ -1027,6 +1032,8 @@ Docs: https://docs.deno.com/
 #+begin_src emacs-lisp
   (use-package vterm
     :ensure t)
+  (use-package vterm-toggle
+    :bind* ("C-t" . vterm-toggle))
 #+end_src
 ** DISABLED: Treemacs
 Repo: https://github.com/Alexander-Miller/treemacs
