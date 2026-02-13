@@ -463,6 +463,7 @@ Repo: https://github.com/justbur/emacs-which-key (ARCHIVED part of Emacs now)
     "SPC b d"   "Delete"
     "SPC b n"   "Next"
     "SPC g"     "maGit"
+    "SPC r"     "Radio"
     "SPC f"     "File"
     "SPC f s"   "Save"
     "SPC f c"   "Config"
@@ -512,7 +513,7 @@ Repo: https://github.com/oantolin/embark
 
 * Helpful
 Repo: https://github.com/Wilfred/helpful
-#+begin_src emacs-lisp
+#+begin_src emacs-lisp :tangle no
   (use-package helpful
     :bind (
     	 :map helpful-mode-map
@@ -558,36 +559,39 @@ Docs/Repo:
 
 * Other Keybindings
 #+begin_src emacs-lisp
-  (global-set-key (kbd "<escape>") 'keyboard-escape-quit)
-  (global-set-key (kbd "C-=") 'text-scale-increase)
-  (global-set-key (kbd "C--") 'text-scale-decrease)
+    (global-set-key (kbd "<escape>") 'keyboard-escape-quit)
+    (global-set-key (kbd "C-=") 'text-scale-increase)
+    (global-set-key (kbd "C--") 'text-scale-decrease)
 
-  (define-prefix-command 'leader-key)
-  (define-key evil-normal-state-map (kbd "SPC") 'leader-key)
-  (define-key global-map (kbd "C-SPC") 'leader-key)
+    (define-prefix-command 'leader-key)
+    (define-key evil-normal-state-map (kbd "SPC") 'leader-key)
+    (define-key global-map (kbd "C-SPC") 'leader-key)
 
-  (dolist (pair '((":"   . execute-extended-command)
-  		("."   . embark-act)
-  		("f r" . recentf)
-  		("f c" . (lambda () 
-                             (interactive) 
-                             (find-file (expand-file-name "~/.emacs.d/config.org"))))
-  		("f s" . write-file)
-  		("n u" . org-roam-ui-mode)
-  		("n f" . org-roam-node-find)
-  		("n i" . org-roam-node-insert)
-  		("n c" . org-id-get-create)
-  		("n l" . org-roam-buffer-toggle)
-  		("b b" . consult-buffer)
-  		("t" . vterm-toggle)
-  		("o t" . vterm-other-window)
-  		("b k" . kill-current-buffer)
-  		("b K" . kill-buffer-and-window)
-  		("b n" . next-buffer)
-                  ("g"   . magit-status)))
-    (define-key leader-key (kbd (car pair)) (cdr pair)))
-  (global-set-key (kbd "C-SPC") 'avy-goto-char-timer) ; Go anywhere with avy
-  (global-set-key (kbd "C-x C-SPC") 'avy-pop-mark) ; Go back
+    (dolist (pair '((":"   . execute-extended-command)
+    		("."   . embark-act)
+    		("f r" . recentf)
+    		("f c" . (lambda () 
+                               (interactive) 
+                               (find-file (expand-file-name "~/.emacs.d/config.org"))))
+    		("f s" . write-file)
+    		("n u" . org-roam-ui-mode)
+    		("n f" . org-roam-node-find)
+    		("n i" . org-roam-node-insert)
+    		("n c" . org-id-get-create)
+    		("n l" . org-roam-buffer-toggle)
+    		("b b" . consult-buffer)
+    		("t" . vterm-toggle)
+    		("o t" . vterm-other-window)
+    		("b k" . kill-current-buffer)
+    		("b K" . kill-buffer-and-window)
+    		("b n" . next-buffer)
+                ("g"   . magit-status)
+  	      ("r f" . somafm-by-completion)
+  	      ("r s" . somafm--stop)
+  ))
+      (define-key leader-key (kbd (car pair)) (cdr pair)))
+    (global-set-key (kbd "C-SPC") 'avy-goto-char-timer) ; Go anywhere with avy
+    (global-set-key (kbd "C-x C-SPC") 'avy-pop-mark) ; Go back
 #+end_src
 
 * Looks
@@ -604,31 +608,17 @@ Repo: https://github.com/seagle0128/doom-modeline
   (setq doom-modeline-vcs-display-function #'doom-modeline-vcs-name)
 #+end_src
 
-** Theme
-Docs: https://protesilaos.com/emacs/modus-themes
-*DISABLED*
+Hide inactive modelines, not sure If I really like this.
 #+begin_src emacs-lisp :tangle no
-  (use-package modus-themes
-    :config ; add cusomizations prior to loading theme
-    (setq modus-themes-italic-constructs t
-  	modus-themes-bold-constructs t
-  	modus-themes-mixed-fonts t
-          modus-themes-variable-pitch-ui nil
-  	modus-themes-custom-auto-reload t
-  	modus-themes-disable-other-themes t)
-    (setq modus-themes-common-palette-overrides
-  	'((bg-prose-block-contents bg-yellow-nuanced)
-  	  (bg-prose-block-delimiter bg-ochre)
-  	  (fg-prose-block-delimiter fg-main)))
-    
-    (set-fringe-mode 0)
-    (setq window-divider-default-right-width 2)
-    (set-face-foreground 'window-divider "DimGrey")
-
-    :init
-    (load-theme 'modus-operandi-tinted :no-confirm))
+  (set-face-attribute 'mode-line-inactive nil
+  		    :height 0.9
+                      :underline nil
+  		    ;:box nil
+  		    :foreground (face-background 'default)
+                      :background (face-background 'default))
 #+end_src
 
+** Theme
 Manual: https://protesilaos.com/emacs/ef-themes
 #+begin_src emacs-lisp 
   (use-package ef-themes
@@ -721,7 +711,7 @@ Manual: https://protesilaos.com/emacs/ef-themes
 
   ;; Set the last preset or fall back to desired style from `fontaine-presets'
   ;; (the `regular' in this case).
-  (fontaine-set-preset (or (fontaine-restore-latest-preset) 'regular))
+  (fontaine-set-preset (or (fontaine-restore-latest-preset) 'medium))
 
   ;; Persist the latest font preset when closing/starting Emacs and
   ;; while switching between themes.
@@ -751,12 +741,6 @@ Repo: https://github.com/zk-phi/sublimity
   (use-package rainbow-delimiters
     :hook (prog-mode . rainbow-delimiters-mode))
 
-  ;; The goal of this package is to stop the minibuffer from centering the main window
-  ;; It does not seem to be working.
-  (use-package mini-ontop
-    :straight (mini-ontop :type git :host github :repo "hkjels/mini-ontop.el"))
-  (mini-ontop-mode 1)
-
   (setq inhibit-startup-message t  ; Don't show the splash screen
         visible-bell t)            ; Flash when the bell rings
 
@@ -771,7 +755,8 @@ Repo: https://github.com/zk-phi/sublimity
   ;; Line numbers by default, exclude spec. modes
   (global-display-line-numbers-mode 1)
   (dolist (mode '(org-mode-hook
-     		term-mode-hook
+     		kotl-mode-hook
+  	      term-mode-hook
      		vterm-mode-hook
      		shell-mode-hook
      		eshell-mode-hook
@@ -781,17 +766,53 @@ Repo: https://github.com/zk-phi/sublimity
     (add-hook mode (lambda () (display-line-numbers-mode 0))))
 #+end_src
 
+* Hyperbole
+Manual https://www.gnu.org/software/hyperbole/
+#+begin_src emacs-lisp
+  (defface my/kotl-label-face
+    '((t :inherit (bold hl-line) ))
+    "Face for Koutliner labels.")
+
+  (defface my/kotl-label-line-face
+    '((t :inherit hl-line))
+    "Face for the first line of Koutliner cells.")
+
+  (defun my/kotl-mode-setup ()
+    (font-lock-add-keywords
+     'kotl-mode
+     '(("^ \\{1,\\}\\(\\(?:[0-9][a-z0-9.]*\\.\\|0\\)\\)\\(?: \\(.+\\)\\)?$"
+        (1 'my/kotl-label-face)
+        (2 'my/kotl-label-line-face))))
+    (evil-mode -1)
+    (flyspell-mode 1)
+    (variable-pitch-mode 1)
+    (org-set-font-lock-defaults)
+    (font-lock-fontify-buffer)
+    (orgtbl-mode)
+    (evil-mode 1))
+
+  (use-package hyperbole
+    :hook (kotl-mode . my/kotl-mode-setup))
+
+#+end_src
+
 * Org-mode
 Manual: https://orgmode.org/org.html
 Worg: https://orgmode.org/worg/
 #+begin_src emacs-lisp
   (defun efs/org-mode-setup ()
+    (with-eval-after-load 'org
+      (font-lock-add-keywords 'org-mode
+  		    '(("^\\(#\\+[A-Z_]+:\\)"
+  		       (1 '(:height 0.75 :inherit org-meta-line) t)))
+  		    'append))
     ;;(org-indent-mode)
+    (electric-indent-mode -1)
     (variable-pitch-mode 1)
     (visual-line-mode 1)
     (org-superstar-mode)
     (flyspell-mode 1)
-    (global-visual-fill-column-mode)
+    ;;(global-visual-fill-column-mode) ;messing with hyperbole
     (setq fill-column 120)
     (visual-fill-column-toggle-center-text))
 
@@ -827,6 +848,7 @@ Worg: https://orgmode.org/worg/
     (set-face-attribute 'org-special-keyword nil :inherit '(font-lock-comment-face fixed-pitch))
     (set-face-attribute 'org-meta-line nil :inherit '(font-lock-comment-face fixed-pitch))
     (set-face-attribute 'org-checkbox nil :inherit 'fixed-pitch))
+
 
   ;; fixed width font check
   ;; mmmmmm
@@ -1194,6 +1216,47 @@ Repo: https://github.com/nobiot/org-remark
   (with-eval-after-load 'info
     (org-remark-info-mode +1))
 #+end_src
+
+** Music / Radio
+somafm
+Repo: https://github.com/artenator/somafm.el
+#+begin_src emacs-lisp
+  (use-package somafm
+    :bind)
+#+end_src
+
+** RPG
+rpgtk
+Repo: https://codeberg.org/howardabrams/emacs-rpgtk.git
+#+begin_src emacs-lisp
+  (use-package rpgtk
+    :straight (:type git :host codeberg :repo "howardabrams/emacs-rpgtk")
+    :init ;before pkg loads
+    :config ;after load
+    (rpgtk-tables-load "/home/connor/.emacs.d/rpg/tables")
+
+    :hook
+    (org-mode . rpgtk-mode))
+
+(defface square-font-face
+  '((t (:family "Square" :height 0.8)))
+  "Face for text inside #+begin_square blocks.")
+
+(defun org-square-font ()
+  (font-lock-add-keywords
+   nil
+   '(("#\\+begin_square\\([\0-\377[:nonascii:]]*?\\)#\\+end_square"
+      1 'square-font-face t))))
+
+(add-hook 'org-mode-hook #'org-square-font)
+#+end_src
+
+* Fun
+#+begin_src emacs-lisp
+  (use-package roguel-ike
+   :straight (:type git :host github :repo "stevenremot/roguel-ike") )
+#+end_src
+
 * Performance
 ** lsp-mode 
 lsp-mode creates a lot of garbage

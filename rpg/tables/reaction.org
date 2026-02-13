@@ -1,0 +1,7 @@
+Roll on Table: 2d6
+|    2 | Attacks                    |
+|  3-5 | Hostile, may attack        |
+|  6-8 | Uncertain, confused        |
+| 9-11 | Indifferent, may negotiate |
+|   12 | Eager, friendly            |
+|      |                            |
