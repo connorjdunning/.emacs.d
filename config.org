@@ -4,12 +4,10 @@
 #+PROPERTY: header-args:emacs-lisp :tangle ./init.el :results silent
 
 This is my Emacs config. It's hopefully declarative and reproducable. To get things up and running:
-1. Delete the bundled org-mode package to make room for the newest version. Check the *lisp-directory* variable, and delete 'org/'
-2. eval the *Straight.el* block.
-3. eval the *Org-mode* block, and *Literate Programming* sub item.
-4. Save the file, you may have to run *org-babel-tangle* the first time but it should tangle automatically afterwards.
-5. ensure 'early-init.el' is present *BEFORE* you restart emacs. It should have been created; if not, copy the code from the *early-init.el* block.
-6. Installing Emacs Application Framework requires some manual steps, as detailed below.
+1. eval the *Straight.el* block.
+2. eval the *Org-mode* block, and *Literate Programming* sub item.
+3. Save the file, you may have to run *org-babel-tangle* the first time but it should tangle automatically afterwards.
+4. ensure 'early-init.el' is present *BEFORE* you restart emacs. It should have been created; if not, copy the code from the *early-init.el* block.
 
 The 'config.org' file will then tangle to 'init.el' when saved, so do that and restart emacs to load any changes.
 
@@ -97,49 +95,6 @@ Repo: https://github.com/radian-software/straight.el
     (setq undo-tree-history-directory-alist '(("." . "~/.emacs.d/undo"))))
 
   (global-undo-tree-mode)
-#+end_src
-
-* DISABLED: Emacs Application Framework
-repo: https://github.com/emacs-eaf/emacs-application-framework
-
-Clone the repo
-#+begin_src shell
-  git clone --depth=1 -b master https://github.com/emacs-eaf/emacs-application-framework.git ~/.emacs.d/site-lisp/emacs-application-framework/;
-#+end_src
-
-then run install-eaf.py
-
-#+begin_src emacs-lisp :tangle no
-  (use-package eaf
-    :load-path "~/.emacs.d/site-lisp/emacs-application-framework"
-    :custom
-                                          ; See https://github.com/emacs-eaf/emacs-application-framework/wiki/Customization
-    (eaf-browser-continue-where-left-off t)
-    (eaf-browser-enable-adblocker t)
-    (browse-url-browser-function 'eaf-open-browser)
-    :config
-    (defalias 'browse-web #'eaf-open-browser)
-    ;;(eaf-bind-key scroll_up "C-n" eaf-pdf-viewer-keybinding)
-    ;;(eaf-bind-key scroll_down "C-p" eaf-pdf-viewer-keybinding)
-    ;;(eaf-bind-key take_photo "p" eaf-camera-keybinding)
-    ;;(eaf-bind-key nil "M-q" eaf-browser-keybinding)) ;; unbind, see more in the Wiki
-    
-
-    ;;(require 'eaf-file-manager)
-    ;;(require 'eaf-pyqterminal)
-    ;;(require 'eaf-image-viewer)
-    ;;(require 'eaf-system-monitor)
-    ;;(require 'eaf-pdf-viewer)
-    ;;(require 'eaf-mind-elixir)
-    ;;(require 'eaf-music-player)
-    ;;(require 'eaf-org-previewer)
-    ;;(require 'eaf-rss-reader)
-    ;;(require 'eaf-camera)
-    (require 'eaf-browser)
-    ;;(require 'eaf-markmap)
-    ;;(require 'eaf-video-player)
-    ;;(require 'eaf-markdown-previewer)
-    ;;(require 'eaf-mindmap)
 #+end_src
 
 * EXWM Emacs Window Manager
@@ -940,26 +895,6 @@ Manual: https://www.orgroam.com/manual.html
           org-roam-ui-update-on-save t
           org-roam-ui-open-on-start t))
 #+end_src
-** DISABLED: howm
-Home: https://kaorahi.github.io/howm/
-#+begin_src emacs-lisp :tangle no
-  (setq howm-view-use-grep t)  ;; use external grep
-  (use-package howm
-    :ensure t
-    :init
-    (setq howm-directory "~/howm")
-    ;; What format to use for the files?
-    (setq howm-file-name-format "%Y-%m-%d-%H%M%S.org")
-    (setq howm-view-title-header "#+title: ")
-    (setq howm-dtime-format "<%Y-%m-%d %a %H:%M>")
-    ;; Avoid conflicts with Org-mode by changing Howm's prefix from "C-c ,".
-    (setq howm-prefix (kbd "C-c ;"))
-    :bind*
-    ;; Conveniently open the Howm menu with "C-c ; ;".
-    ("C-c ; ;" . howm-menu))
-
-  ;;(setq howm-template "* #+title: %cursor\n%date\n\n")
-#+end_src
 ** TODO ob-mermaid
 Repo: https://github.com/arnm/ob-mermaid
 #+begin_src emacs-lisp
@@ -1071,118 +1006,6 @@ Docs: https://docs.deno.com/
   (use-package vterm-toggle
     :bind* ("C-t" . vterm-toggle))
 #+end_src
-** DISABLED: Treemacs
-Repo: https://github.com/Alexander-Miller/treemacs
-#+begin_src emacs-lisp :tangle no
-  (use-package treemacs
-    :ensure t
-    :defer t
-    :init
-    (with-eval-after-load 'winum
-      (define-key winum-keymap (kbd "M-0") #'treemacs-select-window))
-    :config
-    (progn
-      (setq treemacs-collapse-dirs                   (if treemacs-python-executable 3 0)
-            treemacs-deferred-git-apply-delay        0.5
-            treemacs-directory-name-transformer      #'identity
-            treemacs-display-in-side-window          t
-            treemacs-eldoc-display                   'simple
-            treemacs-file-event-delay                2000
-            treemacs-file-extension-regex            treemacs-last-period-regex-value
-            treemacs-file-follow-delay               0.2
-            treemacs-file-name-transformer           #'identity
-            treemacs-follow-after-init               t
-            treemacs-expand-after-init               t
-            treemacs-find-workspace-method           'find-for-file-or-pick-first
-            treemacs-git-command-pipe                ""
-            treemacs-goto-tag-strategy               'refetch-index
-            treemacs-header-scroll-indicators        '(nil . "^^^^^^")
-            treemacs-hide-dot-git-directory          t
-            treemacs-indentation                     2
-            treemacs-indentation-string              " "
-            treemacs-is-never-other-window           nil
-            treemacs-max-git-entries                 5000
-            treemacs-missing-project-action          'ask
-            treemacs-move-files-by-mouse-dragging    t
-            treemacs-move-forward-on-expand          nil
-            treemacs-no-png-images                   nil
-            treemacs-no-delete-other-windows         t
-            treemacs-project-follow-cleanup          nil
-            treemacs-persist-file                    (expand-file-name ".cache/treemacs-persist" user-emacs-directory)
-            treemacs-position                        'left
-            treemacs-read-string-input               'from-child-frame
-            treemacs-recenter-distance               0.1
-            treemacs-recenter-after-file-follow      nil
-            treemacs-recenter-after-tag-follow       nil
-            treemacs-recenter-after-project-jump     'always
-            treemacs-recenter-after-project-expand   'on-distance
-            treemacs-litter-directories              '("/node_modules" "/.venv" "/.cask")
-            treemacs-project-follow-into-home        nil
-            treemacs-show-cursor                     nil
-            treemacs-show-hidden-files               t
-            treemacs-silent-filewatch                nil
-            treemacs-silent-refresh                  nil
-            treemacs-sorting                         'alphabetic-asc
-            treemacs-select-when-already-in-treemacs 'move-back
-            treemacs-space-between-root-nodes        t
-            treemacs-tag-follow-cleanup              t
-            treemacs-tag-follow-delay                1.5
-            treemacs-text-scale                      nil
-            treemacs-user-mode-line-format           nil
-            treemacs-user-header-line-format         nil
-            treemacs-wide-toggle-width               70
-            treemacs-width                           35
-            treemacs-width-increment                 1
-            treemacs-width-is-initially-locked       t
-            treemacs-workspace-switch-cleanup        nil)
-
-      ;; The default width and height of the icons is 22 pixels. If you are
-      ;; using a Hi-DPI display, uncomment this to double the icon size.
-      ;;(treemacs-resize-icons 44)
-
-      (treemacs-follow-mode t)
-      (treemacs-filewatch-mode t)
-      (treemacs-fringe-indicator-mode 'always)
-      (when treemacs-python-executable
-        (treemacs-git-commit-diff-mode t))
-
-      (pcase (cons (not (null (executable-find "git")))
-                   (not (null treemacs-python-executable)))
-        (`(t . t)
-         (treemacs-git-mode 'deferred))
-        (`(t . _)
-         (treemacs-git-mode 'simple)))
-
-      (treemacs-hide-gitignored-files-mode nil))
-    :bind
-    (:map global-map
-          ("M-0"       . treemacs-select-window)
-          ("C-x t 1"   . treemacs-delete-other-windows)
-          ("C-x t t"   . treemacs)
-          ("C-x t d"   . treemacs-select-directory)
-          ("C-x t B"   . treemacs-bookmark)
-          ("C-x t C-t" . treemacs-find-file)
-          ("C-x t M-t" . treemacs-find-tag)))
-
-  (use-package treemacs-evil
-    :after (treemacs evil)
-    :ensure t)
-
-  (use-package treemacs-projectile
-    :after (treemacs projectile)
-    :ensure t)
-
-  (use-package treemacs-icons-dired
-    :hook (dired-mode . treemacs-icons-dired-enable-once)
-    :ensure t)
-
-  (use-package treemacs-magit
-    :after (treemacs magit)
-    :ensure t)
-
-  ;;(treemacs-start-on-boot)
-#+end_src
-
 ** Ebooks & Reading
 
 Repo: https://depp.brause.cc/nov.el/
