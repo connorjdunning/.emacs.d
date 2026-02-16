@@ -7,7 +7,7 @@ This is my Emacs config. It's hopefully declarative and reproducable. To get thi
 1. Delete the bundled org-mode package to make room for the newest version. Check the *lisp-directory* variable, and delete 'org/'
 2. eval the *Straight.el* block.
 3. eval the *Org-mode* block, and *Literate Programming* sub item.
-4. Save the file, you may have to run *org-babel-tangle* the first time but it should tangle automaticly afterwards.
+4. Save the file, you may have to run *org-babel-tangle* the first time but it should tangle automatically afterwards.
 5. ensure 'early-init.el' is present *BEFORE* you restart emacs. It should have been created; if not, copy the code from the *early-init.el* block.
 6. Installing Emacs Application Framework requires some manual steps, as detailed below.
 
@@ -165,6 +165,12 @@ Need to copy this to /usr/share/xsessions/emacs.desktop. Run manually
   sudo cp emacs.desktop /usr/share/xsessions/
 #+end_src
 
+The application launcher
+#+begin_src emacs-lisp
+(use-package xdg-launcher
+  :straight '(xdg-launcher :host github :repo "emacs-exwm/xdg-launcher"))
+#+end_src
+
 #+begin_src emacs-lisp
   ;; Remap CapsLock to Ctrl
   (start-process-shell-command "xmodmap" nil "xmodmap ~/.emacs.d/Xmodmap")
@@ -221,9 +227,7 @@ Need to copy this to /usr/share/xsessions/emacs.desktop. Run manually
             ([?\s-c] . kill-current-buffer)
             ([?\s-C] . kill-buffer-and-window)
             ;; Launch applications via shell command
-            ([?\s-x] . (lambda (command)
-                         (interactive (list (read-shell-command "$ ")))
-                         (start-process-shell-command command nil command)))
+            ([?\s-x] . xdg-launcher-run-app)
 
             ;; Switch workspace
             ([?\s-w] . exwm-workspace-switch)
@@ -753,10 +757,14 @@ Repo: https://github.com/zk-phi/sublimity
   (setq-default truncate-lines t)
 
   ;; Line numbers by default, exclude spec. modes
+(custom-set-faces
+ '(line-number-current-line ((t (:height 0.9)))))
+
   (global-display-line-numbers-mode 1)
   (dolist (mode '(org-mode-hook
      		kotl-mode-hook
   	      term-mode-hook
+  	      nov-mode-hook
      		vterm-mode-hook
      		shell-mode-hook
      		eshell-mode-hook
