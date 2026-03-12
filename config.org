@@ -2,6 +2,7 @@
 #+author: Connor Dunning
 #+STARTUP: content
 #+PROPERTY: header-args:emacs-lisp :tangle ./init.el :results silent
+#+PROPERTY: header-args:elisp :tangle ./init.el :results silent
 
 This is my Emacs config. It's hopefully declarative and reproducable. To get things up and running:
 1. eval the *Straight.el* block.
@@ -18,6 +19,10 @@ I'm building this out as I go. I'm not /too/ worried about start up time buuuuut
 - A Life Configuring emacs, [[https://alhassy.github.io/][Musa Al-hassy]]
 
 * early-init.el
+:PROPERTIES:
+:ID:       7e5661fd-d2af-44a0-ac5d-73ced9cb27e4
+:END:
+:END:
 manual: https://www.gnu.org/software/emacs/manual/html_node/emacs/Early-Init-File.html
 This block tangles to the early-init file and has a safety check incase it tangles to init.el
 #+begin_src emacs-lisp :tangle early-init.el
@@ -32,6 +37,9 @@ This block tangles to the early-init file and has a safety check incase it tangl
 #+end_src
 
 * Straight.el
+:PROPERTIES:
+:ID:       2ea72d3c-d79c-43f0-8e58-4b9efa54931f
+:END:
 Repo: https://github.com/radian-software/straight.el
 *Bootstrapping*
 #+begin_src emacs-lisp
@@ -61,6 +69,9 @@ Repo: https://github.com/radian-software/straight.el
 #+end_src
 
 * Global Configuration
+:PROPERTIES:
+:ID:       a4813c0d-26a6-4fb6-8464-210ff072beea
+:END:
 #+begin_src emacs-lisp
   ;;(setq auto-save-default nil)
   (setq auto-save-file-name-transforms '((".*" "~/.emacs.d/saves/" t)))
@@ -81,6 +92,9 @@ Repo: https://github.com/radian-software/straight.el
 #+end_src
 
 ** undo-tree
+:PROPERTIES:
+:ID:       93400ff4-98a8-4673-a855-46af64dc9b74
+:END:
 #+begin_src emacs-lisp
   (use-package undo-tree
     :bind
@@ -98,6 +112,9 @@ Repo: https://github.com/radian-software/straight.el
 #+end_src
 
 * EXWM Emacs Window Manager
+:PROPERTIES:
+:ID:       0de45a6c-f6bd-45c4-a814-24939a760325
+:END:
 User Guide: https://github.com/emacs-exwm/exwm/wiki
 
 *Adjust home folder path if needed*
@@ -216,6 +233,9 @@ The application launcher
 #+end_src
 
 ** EXWM Second Monitor Fix
+:PROPERTIES:
+:ID:       f0cc88cf-e710-43d8-89f3-5a9674b410fe
+:END:
 This sucks and is a hack. I have to call this after the Second monitor is awake from standby and Emacs can see it. 
 #+begin_src emacs-lisp
    (defun efs/exwm-update-class ()
@@ -236,6 +256,9 @@ This sucks and is a hack. I have to call this after the Second monitor is awake 
 #+end_src
 
 * PDF-tools
+:PROPERTIES:
+:ID:       b344f0c9-5899-4d38-8ec9-543a3275b907
+:END:
 repo: https://github.com/vedang/pdf-tools
 #+begin_src emacs-lisp
   (use-package pdf-tools)
@@ -243,6 +266,9 @@ repo: https://github.com/vedang/pdf-tools
 
 * Completion & Minibuffer
 ** Consult
+:PROPERTIES:
+:ID:       4a442f95-6109-4f99-a300-a1209aa9c88d
+:END:
 repo: https://github.com/minad/consult
 wiki: https://github.com/minad/consult/wiki  
 #+begin_src emacs-lisp
@@ -352,97 +378,113 @@ wiki: https://github.com/minad/consult/wiki
 #+end_src
 
 ** Vertico & Extensions
+:PROPERTIES:
+:ID:       61d96243-9a81-4f40-8888-eb1d694cb762
+:END:
 Repos:
 - [[https://github.com/minad/vertico][vertico]]
 - [[https://github.com/minad/marginalia][marginalia]] adds details to options in the completion minibuffers
 - [[https://github.com/oantolin/orderless][orderless]]
 
 #+begin_src emacs-lisp
-  (use-package vertico
-    :ensure t
-    :bind (:map vertico-map
-                ("C-j" . vertico-next)
-                ("C-k" . vertico-previous)
-                ("C-f" . vertico-exit)
-                :map minibuffer-local-map
-                ("M-h" . backward-kill-word))
-    :custom
-    (vertico-cycle t)
-    (enable-recursive-minibuffers t)
-    :init
-    (vertico-mode))
-  (use-package savehist
-    :init
-    (savehist-mode))
+    (use-package vertico
+      :ensure t
+      :bind (:map vertico-map
+                  ("C-j" . vertico-next)
+                  ("C-k" . vertico-previous)
+                  ("C-f" . vertico-exit)
+                  :map minibuffer-local-map
+                  ("M-h" . backward-kill-word))
+      :custom
+      (vertico-cycle t)
+      (enable-recursive-minibuffers t)
+      :init
+      (vertico-mode))
+    (use-package savehist
+      :init
+      (savehist-mode))
 
-  (use-package marginalia
-    ;; Bind `marginalia-cycle' locally in the minibuffer.  To make the binding
-    ;; available in the *Completions* buffer, add it to the
-    ;; `completion-list-mode-map'.
-    :bind (:map minibuffer-local-map
-                ("M-A" . marginalia-cycle))
-    :init
-    ;; Marginalia must be activated in the :init section of use-package such that
-    (marginalia-mode))
+    (use-package marginalia
+      ;; Bind `marginalia-cycle' locally in the minibuffer.  To make the binding
+      ;; available in the *Completions* buffer, add it to the
+      ;; `completion-list-mode-map'.
+      :bind (:map minibuffer-local-map
+                  ("M-A" . marginalia-cycle))
+      :init
+      ;; Marginalia must be activated in the :init section of use-package such that
+      (marginalia-mode))
 
-  (use-package nerd-icons-completion
-    :after marginalia
-    :config
-    (nerd-icons-completion-mode)
-    (add-hook 'marginalia-mode-hook #'nerd-icons-completion-marginalia-setup))
+    (use-package nerd-icons-completion
+      :after marginalia
+      :config
+      (nerd-icons-completion-mode)
+      (add-hook 'marginalia-mode-hook #'nerd-icons-completion-marginalia-setup))
 
-  (use-package orderless
-    :ensure t
-    :custom
-    (completion-styles '(basic orderless))
-    (completion-category-overrides '((file (styles basic partial-completion)))))
+    (use-package orderless
+      :ensure t
+      :custom
+      (completion-styles '(basic orderless))
+      (completion-category-overrides '((file (styles basic partial-completion)))))
 
-  ;; A more bash-like prefix exxpansion
-  (keymap-set vertico-map "?" #'minibuffer-completion-help)
-  (keymap-set vertico-map "TAB" #'minibuffer-complete)
+    ;; A more bash-like prefix exxpansion
+    (keymap-set vertico-map "?" #'minibuffer-completion-help)
+    (keymap-set vertico-map "TAB" #'minibuffer-complete)
 #+end_src
 
 ** Which-key
+:PROPERTIES:
+:ID:       1a214048-6bf0-416d-888b-c62a9e2ac0f7
+:END:
 Repo: https://github.com/justbur/emacs-which-key (ARCHIVED part of Emacs now)
 #+begin_src emacs-lisp
-  (use-package which-key
-    :init (which-key-mode)
-    :diminish
-    :config
-    (setq which-key-idle-delay 0.1))
-  (which-key-setup-minibuffer)
-  (setq which-key-popup-type 'minibuffer)
-  ;;(which-key-setup-side-window-right-bottom)
-  (which-key-add-key-based-replacements
-    "SPC :"     "M-x"
-    "SPC o"     "Other window"
-    "SPC o t"   "vTerm"
-    "SPC b"     "Buffer"
-    "SPC b b"   "switch Buffer"
-    "SPC b d"   "Delete"
-    "SPC b n"   "Next"
-    "SPC g"     "maGit"
-    "SPC r"     "Radio"
-    "SPC f"     "File"
-    "SPC f s"   "Save"
-    "SPC f c"   "Config"
-    "SPC f r"   "find Recent"
-    "SPC n"     "Notes"
-    "SPC n i" "Note Insert link"
-    "SPC n l" "Note Links buffer toggle"
-    "SPC n c" "Note Create (add id to heading)"
-    "SPC n u" "Note Ui"
-    "SPC n f" "Note Find-node")
+     (use-package which-key
+       :init (which-key-mode)
+       :diminish
+       :custom
+       (which-key-lighter nil)
+       (which-key-sort-order 'which-key-description-order)
+       (which-key-max-display-columns 4)
+       (which-key-max-description-length 40)
+       :config
+       (setq which-key-idle-delay 0.1))
+  (which-key-setup-side-window-bottom)
+     ;(which-key-setup-minibuffer)
+     ;(setq which-key-popup-type 'minibuffer)
+     ;;(which-key-setup-side-window-right-bottom)
+     (which-key-add-key-based-replacements
+       "SPC :"     "M-x"
+       "SPC o"     "Other window"
+       "SPC o t"   "vTerm"
+       "SPC b"     "Buffer"
+       "SPC b b"   "switch Buffer"
+       "SPC b d"   "Delete"
+       "SPC b n"   "Next"
+       "SPC g"     "maGit"
+       "SPC r"     "Radio"
+       "SPC f"     "File"
+       "SPC f s"   "Save"
+       "SPC f c"   "Config"
+       "SPC f r"   "find Recent"
+       "SPC n"     "Notes"
+       "SPC n i" "Note Insert link"
+       "SPC n l" "Note Links buffer toggle"
+       "SPC n c" "Note Create (add id to heading)"
+       "SPC n u" "Note Ui"
+       "SPC n f" "Note Find-node")
 
-  ;; paging doesn't seem to work in which-key
-  (global-set-key [next] 'which-key-show-next-page-cycle)
-  (global-set-key [prior] 'which-key-show-previous-page-cycle)
+     ;; paging doesn't seem to work in which-key
+     ; this might have been the mini-buffer
+     ;(global-set-key [next] 'which-key-show-next-page-cycle)
+     ;(global-set-key [prior] 'which-key-show-previous-page-cycle)
 
 #+End_src
 
 ** TODO checkout the built-in completion stuff
 https://www.youtube.com/watch?v=-ZeoGVtMLaU
 * Embark
+:PROPERTIES:
+:ID:       f558a589-0f7f-4012-9ca7-80dc0c79b27f
+:END:
 Repo: https://github.com/oantolin/embark
 #+begin_src emacs-lisp
   (use-package embark
@@ -450,7 +492,7 @@ Repo: https://github.com/oantolin/embark
 
     :bind
     (("C-." . embark-act)         ;; pick some comfortable binding
-     ("C-;" . embark-dwim)        ;; good alternative: M-.
+     ("M-." . embark-dwim)        ;; good alternative: M-.
      ("C-h B" . embark-bindings)) ;; alternative for `describe-bindings'
 
     :init
@@ -461,7 +503,7 @@ Repo: https://github.com/oantolin/embark
     (add-to-list 'display-buffer-alist
                  '("\\`\\*Embark Collect \\(Live\\|Completions\\)\\*"
                    nil
-                   (window-parameters (mode-line-format . none)))))
+  		   (window-parameters (mode-line-format . none)))))
 
   ;; Consult users will also want the embark-consult package.
   (use-package embark-consult
@@ -487,6 +529,9 @@ Repo: https://github.com/Wilfred/helpful
 #+end_src
 
 * Evil-mode
+:PROPERTIES:
+:ID:       ef36f99d-f380-436c-9d38-d1763bd633f2
+:END:
 Docs/Repo:
 - [[https://evil.readthedocs.io/en/latest/overview.html][evil-mode]]
 - [[https://github.com/emacs-evil/evil-collection][evil-collection]]
@@ -517,6 +562,9 @@ Docs/Repo:
 #+end_src
 
 * Other Keybindings
+:PROPERTIES:
+:ID:       00e834fe-bbd8-412d-8e28-665061e3ce84
+:END:
 #+begin_src emacs-lisp
     (global-set-key (kbd "<escape>") 'keyboard-escape-quit)
     (global-set-key (kbd "C-=") 'text-scale-increase)
@@ -555,6 +603,9 @@ Docs/Repo:
 
 * Looks
 ** Modeline
+:PROPERTIES:
+:ID:       25687abd-072e-49a5-8ffd-5b050ea0c6ca
+:END:
 Repo: https://github.com/seagle0128/doom-modeline
 #+begin_src emacs-lisp
   (use-package doom-modeline
@@ -578,6 +629,9 @@ Hide inactive modelines, not sure If I really like this.
 #+end_src
 
 ** Theme
+:PROPERTIES:
+:ID:       aa4c8c19-d029-4c02-8257-608dcb9ea13b
+:END:
 Manual: https://protesilaos.com/emacs/ef-themes
 #+begin_src emacs-lisp 
   (use-package ef-themes
@@ -595,6 +649,9 @@ Manual: https://protesilaos.com/emacs/ef-themes
 #+end_src
 
 ** Fonts
+:PROPERTIES:
+:ID:       d79a937e-e3d0-4761-9304-862b3bdb7629
+:END:
 #+begin_src emacs-lisp
   (use-package fontaine)
 
@@ -684,6 +741,9 @@ Manual: https://protesilaos.com/emacs/ef-themes
 #+end_src
 
 ** Scrolling
+:PROPERTIES:
+:ID:       b41f16e7-9a23-4dc7-a992-27534ec138b5
+:END:
 Repo: https://github.com/zk-phi/sublimity
 #+begin_src emacs-lisp
   (use-package sublimity
@@ -695,7 +755,16 @@ Repo: https://github.com/zk-phi/sublimity
     :init
     (sublimity-mode +1))
 #+end_src
+
+Sometimes, I'll want to use centered-cursor-mode
+#+begin_src emacs-lisp
+  (use-package centered-cursor-mode)
+#+end_src
+
 ** Misc
+:PROPERTIES:
+:ID:       f2abf092-9366-4607-a112-7e2d32bb214a
+:END:
 #+begin_src emacs-lisp
   (use-package rainbow-delimiters
     :hook (prog-mode . rainbow-delimiters-mode))
@@ -730,6 +799,9 @@ Repo: https://github.com/zk-phi/sublimity
 #+end_src
 
 * Hyperbole
+:PROPERTIES:
+:ID:       bb71611e-d740-4a14-baf8-0f76470c5862
+:END:
 Manual https://www.gnu.org/software/hyperbole/
 #+begin_src emacs-lisp
   (defface my/kotl-label-face
@@ -760,6 +832,9 @@ Manual https://www.gnu.org/software/hyperbole/
 #+end_src
 
 * Org-mode
+:PROPERTIES:
+:ID:       e4e48168-07d4-48d1-a66e-c0b35882e274
+:END:
 Manual: https://orgmode.org/org.html
 Worg: https://orgmode.org/worg/
 #+begin_src emacs-lisp
@@ -828,6 +903,9 @@ Worg: https://orgmode.org/worg/
 #+end_src
 
 ** Literate Programming
+:PROPERTIES:
+:ID:       32d897d4-f59f-42ac-9fef-342ddfdc8eaa
+:END:
 Docs (worg): https://orgmode.org/worg/org-contrib/babel/intro.html
 Home Page: https://orgmode.org/worg/org-contrib/babel/
 
@@ -871,6 +949,9 @@ Home Page: https://orgmode.org/worg/org-contrib/babel/
 #+end_src
 
 ** Org-roam
+:PROPERTIES:
+:ID:       0e32543c-ea9f-4a80-a61c-42b19922fac7
+:END:
 Manual: https://www.orgroam.com/manual.html
 #+begin_src emacs-lisp
   (use-package org-roam
@@ -896,12 +977,18 @@ Manual: https://www.orgroam.com/manual.html
           org-roam-ui-open-on-start t))
 #+end_src
 ** TODO ob-mermaid
+:PROPERTIES:
+:ID:       64fd183e-32ab-493e-8a94-097aaddbf798
+:END:
 Repo: https://github.com/arnm/ob-mermaid
 #+begin_src emacs-lisp
 
 #+end_src
 * Programming
 ** magit
+:PROPERTIES:
+:ID:       cdb5fce6-1de4-4d71-a298-be56c1c01367
+:END:
 Manual: https://magit.vc/manual/magit.html
 Reference Card: https://magit.vc/manual/magit-refcard.pdf
 #+begin_src emacs-lisp
@@ -914,6 +1001,9 @@ Reference Card: https://magit.vc/manual/magit-refcard.pdf
     :after magit)
 #+end_src
 ** TODO Lsp-mode
+:PROPERTIES:
+:ID:       36c4ddc1-8ca7-466c-b56a-703db9d0c56d
+:END:
 Docs: https://emacs-lsp.github.io/lsp-mode/
 #+begin_src emacs-lisp
   (defun efs/lsp-mode-setup ()
@@ -937,9 +1027,6 @@ Packages that extend lsp mode:
     :custom
     (lsp-ui-doc-position 'bottom))
 
-  (use-package lsp-treemacs
-    :after lsp)
-
   (use-package company
     :after lsp-mode
     ;;    :hook (lsp-mode . company-mode)
@@ -960,6 +1047,8 @@ Packages that extend lsp mode:
 
   (use-package company-box
     :hook (company-mode . company-box-mode))
+
+(setq lsp-warn-no-matched-clients nil) ;supress annoying warning
 #+end_src
 
 Shutdown lsp automatically
@@ -968,6 +1057,9 @@ Shutdown lsp automatically
 #+end_src
 
 ** Projectile
+:PROPERTIES:
+:ID:       87ad089d-4d2f-4770-a189-12a43f28ba51
+:END:
 Repo: https://github.com/bbatsov/projectile
 #+begin_src emacs-lisp
   (use-package projectile
@@ -984,6 +1076,9 @@ Repo: https://github.com/bbatsov/projectile
 ** Languages
 lsp-mode integration: https://emacs-lsp.github.io/lsp-mode/page/languages/
 *** Java
+:PROPERTIES:
+:ID:       c300e0e1-f454-497b-a47c-47abac4c5237
+:END:
 #+begin_src emacs-lisp
   (use-package lsp-java :config (add-hook 'java-mode-hook 'lsp))
   ;;(use-package dap-java :ensure t)
@@ -992,6 +1087,9 @@ lsp-mode integration: https://emacs-lsp.github.io/lsp-mode/page/languages/
 #+end_src
 
 *** JS/TS
+:PROPERTIES:
+:ID:       2584998b-21cd-4b40-a7a0-da55fa12a3c9
+:END:
 Docs: https://docs.deno.com/
 #+begin_src emacs-lisp
   (setq lsp-clients-deno-server
@@ -1000,6 +1098,9 @@ Docs: https://docs.deno.com/
 #+end_src
 * Utilities
 ** vterm
+:PROPERTIES:
+:ID:       832a451c-640d-4ace-b516-15d89f254354
+:END:
 #+begin_src emacs-lisp
   (use-package vterm
     :ensure t)
@@ -1007,6 +1108,9 @@ Docs: https://docs.deno.com/
     :bind* ("C-t" . vterm-toggle))
 #+end_src
 ** Ebooks & Reading
+:PROPERTIES:
+:ID:       d839c6f2-497e-474b-9f87-f5b87f614e7b
+:END:
 
 Repo: https://depp.brause.cc/nov.el/
 #+begin_src emacs-lisp
@@ -1049,6 +1153,9 @@ Repo: https://github.com/nobiot/org-remark
 #+end_src
 
 ** Music / Radio
+:PROPERTIES:
+:ID:       87b24cec-f3ec-4074-8f9d-51d96df553ae
+:END:
 somafm
 Repo: https://github.com/artenator/somafm.el
 #+begin_src emacs-lisp
@@ -1057,39 +1164,998 @@ Repo: https://github.com/artenator/somafm.el
 #+end_src
 
 ** RPG
+:PROPERTIES:
+:ID:       3e619476-9dbc-48fb-86a3-64facfe1adcd
+:END:
 rpgtk
 Repo: https://codeberg.org/howardabrams/emacs-rpgtk.git
 #+begin_src emacs-lisp
-  (use-package rpgtk
-    :straight (:type git :host codeberg :repo "howardabrams/emacs-rpgtk")
-    :init ;before pkg loads
-    :config ;after load
-    (rpgtk-tables-load "/home/connor/.emacs.d/rpg/tables")
+    (use-package rpgtk
+      :straight (:type git :host codeberg :repo "howardabrams/emacs-rpgtk")
+      :init ;before pkg loads
+      :config ;after load
+      (rpgtk-tables-load "/home/connor/.emacs.d/rpg/tables")
 
-    :hook
-    (org-mode . rpgtk-mode))
+     ;; :hook
+     ;; (org-mode . rpgtk-mode)
+      )
 
-(defface square-font-face
-  '((t (:family "Square" :height 0.8)))
-  "Face for text inside #+begin_square blocks.")
+  (defface square-font-face
+    '((t (:family "Square" :height 0.8)))
+    "Face for text inside #+begin_square blocks.")
 
-(defun org-square-font ()
-  (font-lock-add-keywords
-   nil
-   '(("#\\+begin_square\\([\0-\377[:nonascii:]]*?\\)#\\+end_square"
-      1 'square-font-face t))))
+  (defun org-square-font ()
+    (font-lock-add-keywords
+     nil
+     '(("#\\+begin_square\\([\0-\377[:nonascii:]]*?\\)#\\+end_square"
+        1 'square-font-face t))))
 
-(add-hook 'org-mode-hook #'org-square-font)
+  ;;(add-hook 'org-mode-hook #'org-square-font)
 #+end_src
 
 * Fun
+:PROPERTIES:
+:ID:       74cd740a-074f-44cc-91ec-6cb0971c7ca6
+:END:
 #+begin_src emacs-lisp
   (use-package roguel-ike
    :straight (:type git :host github :repo "stevenremot/roguel-ike") )
 #+end_src
 
+* Emacs Writing Studio
+:PROPERTIES:
+:ID:       bb58dafe-5f80-4952-a231-56c0815f0101
+:END:
+#+begin_src emacs-lisp
+  (use-package olivetti)
+  (setq 
+   ews-bibtex-directory
+      (concat (file-name-as-directory (getenv "HOME")) "Documents/" "library/")
+   ;citar-denote-subdir
+   ;   (concat (file-name-as-directory (getenv "HOME")) "Documents/" "notes/" "bib/")
+   denote-file-type "org"
+   org-default-notes-file "~/Documents/notes/fleeting-notes.org")
+#+end_src
+Here are portions of EWS that I've excised for use and experimentation.
+Repo: https://github.com/pprevos/emacs-writing-studio
+*** EWS.el
+:PROPERTIES:
+:ID:       00468add-1b6f-418b-91d2-73bb67ea5369
+:END:
+#+begin_src emacs-lisp
+  (defgroup ews ()
+    "Emacs Writing Studio."
+    :group 'files
+    :link '(url-link :tag "Homepage" "https://lucidmanager.org/tags/emacs/"))
+
+  (defcustom ews-bibtex-directory
+    (concat (file-name-as-directory (getenv "HOME"))  "Documents/" "library")
+    "Location of BibTeX files and attachments."
+    :group 'ews
+    :type 'directory)
+
+  (defcustom ews-denote-para-keywords
+    '("projects" "areas" "resources" "archives")
+    "List of keywords to use for implementing the PARA method with Denote."
+    :group 'ews
+    :type 'list)
+
+  (defcustom ews-hunspell-dictionaries "en_US"
+    "Comma-separated list of Hunspell dictionaries."
+    :group 'ews
+    :type 'list)
+
+  (defcustom ews-org-heading-level-capitalise nil
+    "Minimum level of Org headings to be capitalised
+  Nil implies all levels are capitalised."
+    :group 'ews
+    :type  '(choice (const :tag "All headings" nil)
+  		  (integer :tag "Highest level" 1)))
+
+  ;; Check for missing external software
+  ;;;###autoload
+  (defun ews-missing-executables (prog-list)
+    "Identify missing executables in PROG-LIST.
+  Sublists indicate that one of the entries is required."
+    (let ((missing '()))
+      (dolist (exec prog-list)
+        (if (listp exec)
+            (unless (cl-some #'executable-find exec)
+              (push (format "(%s)" (mapconcat 'identity exec " or ")) missing))
+          (unless (executable-find exec)
+            (push exec missing))))
+      (if missing
+          (message "Missing executable files(s): %s"
+                   (mapconcat 'identity missing ", "))
+        (message "No missing executable files."))))
+
+  ;;; BIBLIOGRAPHY
+  (defvar ews-bibtex-files
+    (when (file-exists-p ews-bibtex-directory)
+      (directory-files ews-bibtex-directory t "^[A-Z|a-z|0-9].+.bib$"))
+    "List of BibTeX files. Use `ews-bibtex-register' to configure.")
+
+  ;;;###autoload
+  (defun ews-bibtex-register ()
+    "Register the contents of the `ews-bibtex-directory' with `ews-bibtex-files`.
+  Use when adding or removing a BibTeX file from or to `ews-bibtex-directory'."
+    (interactive)
+    (when (file-exists-p ews-bibtex-directory)
+      (let ((bib-files (directory-files ews-bibtex-directory t
+  				      "^[A-Z|a-z|0-9].+.bib$")))
+        (setq ews-bibtex-files bib-files
+    	    org-cite-global-bibliography bib-files
+  	    citar-bibliography bib-files)))
+    (message "Registered:\n%s" (mapconcat #'identity ews-bibtex-files "\n")))
+
+  (defun ews--bibtex-combined-biblio-lookup ()
+    "Combines `biblio-lookup' and `biblio-doi-insert-bibtex'."
+    (require 'biblio)
+    (let* ((dbs (biblio--named-backends))
+           (db-list (append dbs '(("DOI" . biblio-doi-backend))))
+           (db-selected (biblio-completing-read-alist
+                         "Backend:"
+                         db-list)))
+      (if (eq db-selected 'biblio-doi-backend)
+          (let ((doi (read-string "DOI: ")))
+            (biblio-doi-insert-bibtex doi))
+        (biblio-lookup db-selected))))
+
+  ;;;###autoload
+  (defun ews-bibtex-biblio-lookup ()
+    "Insert Biblio search results into current buffer or select BibTeX file."
+    (interactive)
+    (if-let ((current-mode major-mode)
+  	   ews-bibtex-files
+  	   (bibfiles (length ews-bibtex-files))
+  	   (bibfile (cond ((eq bibfiles 1) (car ews-bibtex-files))
+  			  ((equal major-mode 'bibtex-mode)
+  			   (buffer-file-name))
+  			  (t (completing-read
+  			      "Select BibTeX file:" ews-bibtex-files)))))
+        (progn (find-file bibfile)
+  	     (goto-char (point-max))
+  	     (ews--bibtex-combined-biblio-lookup)
+  	     (save-buffer))
+      (message "No BibTeX file(s) defined.")))
+
+  ;; Search for missing BibTeX attachments and filenames
+  (defun ews--bibtex-extract-attachments ()
+    "Extract attachment file names from BibTeX files in `ews-bibtex-directory'."
+    (ews-bibtex-register)
+    (let ((attachments '()))
+      (dolist (bibtex-file ews-bibtex-files)
+        (with-temp-buffer
+          (insert-file-contents bibtex-file)
+          (goto-char (point-min))
+          (while (re-search-forward "file.*=.*{\\([^}]+\\)}" nil t)
+            (let ((file-paths (split-string (match-string 1)
+                                            "[[:space:]]*;[[:space:]]*")))
+              (dolist (file-path file-paths)
+                (push (expand-file-name (string-trim file-path)
+                                        ews-bibtex-directory)
+                      attachments))))))
+      attachments))
+
+  (defun ews--bibtex-extract-files ()
+    "List files recursively in `ews-bibtex-directory', excluding `.bib' and `.csl'."
+    (seq-remove (lambda (file)
+                  (or (string-suffix-p ".bib" file)
+                      (string-suffix-p ".csl" file)))
+                (mapcar 'expand-file-name
+                        (directory-files-recursively ews-bibtex-directory ""))))
+
+  ;;;###autoload
+  (defun ews-bibtex-missing-files ()
+    "List BibTeX attachments not listed in a BibTeX file entry."
+    (interactive)
+    (let* ((files (ews--bibtex-extract-files))
+           (attachments (ews--bibtex-extract-attachments))
+           (missing (cl-remove-if
+                     (lambda (f) (member f attachments)) files)))
+      (message "%s files not registered in bibliography" (length missing))
+      (dolist (file missing)
+        (message file))))
+
+  ;;;###autoload
+  (defun ews-bibtex-missing-attachments ()
+    "List BibTeX file entries with missing attachment(s)."
+    (interactive)
+    (let* ((files (ews--bibtex-extract-files))
+           (attachments (ews--bibtex-extract-attachments))
+           (missing (cl-remove-if
+                     (lambda (f) (member f files)) attachments)))
+      (message "%s BibTeX files without matching attachment." (length missing))
+      (dolist (file missing)
+        (message file))))
+
+  ;; Denote
+  ;;;###autoload
+  (defun ews-denote-assign-para ()
+    "Move your note to either Project, Area, Reource or Archive (PARA).
+  Configure the PARA names with `ews-denote-para-keywords'."
+    (interactive)
+    (if-let* ((file (buffer-file-name))
+              ((denote-filename-is-note-p file))
+              (all-keywords (string-split (denote-retrieve-filename-keywords file) "_"))
+              (keywords (seq-remove (lambda (keyword)
+                                      (member keyword ews-denote-para-keywords))
+                                    all-keywords))
+              (para (completing-read "Select category: " ews-denote-para-keywords))
+              (new-keywords (push para keywords)))
+        (denote-rename-file
+         file
+         (denote-retrieve-title-or-filename file (denote-filetype-heuristics file))
+         new-keywords
+         (denote-retrieve-filename-signature file))
+      (message "Current buffer is not a Denote file.")))
+
+  ;; Distraction-free writing
+  (defvar ews-olivetti-point nil
+    "Stores the point position before enabling Olivetti mode.")
+
+  ;;;###autoload
+  (defun ews-olivetti ()
+    "Distraction-free writing environment enhancing Olivetti mode.
+
+  Stores the window configuration when enabling Olivetti mode.
+  Restores the previous configuration when existing Olivetti mode
+  and moves point to the last location."
+    (interactive)
+    (if olivetti-mode
+        (progn
+          (if (eq (length (window-list)) 1)
+              (progn
+                (jump-to-register 1)
+                (goto-char ews-olivetti-point)))
+          (olivetti-mode 0)
+          (text-scale-set 0))
+      (progn
+        (setq ews-olivetti-point (point))
+        (window-configuration-to-register 1)
+        (delete-other-windows)
+        (text-scale-set 1)
+        (olivetti-mode t))))
+
+  ;;;###autoload
+  (defun ews-org-insert-notes-drawer ()
+    "Generate or open a NOTES drawer under the current heading.
+  If a drawer exists for this section, a new line is created at the end of the
+  current note."
+    (interactive)
+    (push-mark)
+    (org-previous-visible-heading 1)
+    (forward-line)
+    (if (looking-at-p "^[ \t]*:NOTES:")
+        (progn
+          (org-fold-hide-drawer-toggle 'off)
+          (re-search-forward "^[ \t]*:END:" nil t)
+          (forward-line -1)
+          (org-end-of-line)
+          (org-return))
+      (org-insert-drawer nil "NOTES"))
+    (org-unlogged-message "Press <C-u C-SPACE> to return to the previous position."))
+
+  ;;;###autoload
+  (defun ews-org-count-words ()
+    "Add word count to each heading property drawer in an Org mode buffer."
+    (interactive)
+    (org-map-entries
+     (lambda ()
+       (let* ((start (point))
+              (end (save-excursion (org-end-of-subtree)))
+              (word-count (count-words start end)))
+         (org-set-property "WORDCOUNT" (number-to-string word-count))))))
+
+  ;;;###autoload
+  (defun ews-org-insert-screenshot ()
+    "Take a screenshot with the maim program and insert as an Org mode link."
+    (interactive)
+    (let ((filename (read-file-name "Enter filename for screenshot: " default-directory)))
+      (unless (string-equal "png" (file-name-extension filename))
+        (setq filename (concat (file-name-sans-extension filename) ".png")))
+      (call-process-shell-command (format "maim --select %s" filename))
+      (insert (format "#+caption: %s\n" (read-from-minibuffer "Caption: ")))
+      (insert (format "[[file:%s]]" filename))
+      (org-redisplay-inline-images)))
+
+  ;;;###autoload
+  (defun ews-org-headings-titlecase (&optional arg)
+    "Cycle through all headings in an Org buffer and convert them to title case.
+  When used with universal argument (ARG) converts to sentence case.
+  Customise `titlecase-style' for styling."
+    (interactive "P")
+    (require 'titlecase)
+    (let ((style (if arg 'sentence titlecase-style)))
+      (message "Converting headings to '%s' style" style)
+      (org-map-entries
+       (lambda ()
+         (let* ((heading (substring-no-properties (org-get-heading t t t t)))
+  	      (level (org-current-level))
+  	      (heading-lower (downcase heading))
+                (new-heading (titlecase--string heading-lower style)))
+  	 (when (<= level (or ews-org-heading-level-capitalise 999))
+  	   (org-edit-headline new-heading)))))))
+
+  ;; Fixed by Prot
+  (defun ews-denote-link-description-title-case (file file-type)
+    "Return link description for FILE.
+
+  If the region is active, use it as the description.
+  The title is formatted with the `titlecase' package.
+
+  This function is useful as the value of `denote-link-description-function' to
+  generate links in titlecase for attachments."
+    (require 'titlecase)
+    (let* ((title (denote-retrieve-title-or-filename file file-type)))
+      (cond
+       ((denote--get-active-region-content))
+       ((or (null title) (string-blank-p title))
+        "")
+       ((string-match-p " " title)
+        title)
+       (t
+        (let ((clean-title (replace-regexp-in-string "\\([a-zA-Z0-9]\\)-\\([a-zA-Z0-9]\\)" "\\1 \\2" title)))
+          (format "%s" (titlecase--string clean-title titlecase-style)))))))
+
+#+end_src
+
+** TODO Reorganize
+:PROPERTIES:
+:ID:       108326fd-e98f-4a04-9348-60c576778ad9
+:END:
+In Emacs Lisp, =t= means TRUE and =nil= is equivalent to FALSE. Emacs documentation often mentions setting a value to "non-nil", which is a double negative to suggest setting the variable to true.
+
+#+begin_src elisp
+  (setq-default use-short-answers t)
+#+end_src
+
+#+RESULTS:
+: t
+
+The Scratch Buffer is by default set to Emacs Lisp mode. This is not so useful for authors, so we change this to Org mode and add a new default message.
+
+#+begin_src elisp
+      (setq initial-major-mode 'org-mode
+  	  initial-scratch-message (concat "#+title: Emacs\n"
+  					  "#+subtitle: Scratch Buffer\n\n"
+  					  "#The text in this buffer is not saved when exiting Emacs!\n#+begin_src emacs-lisp\n"
+  					  "\n\n\n\n"
+  					  "#+end_src\n"))
+#+end_src
+
+The next two sections of code further improve the Emacs interface with two packages by Emacs guru Protesilaos Stavrou.
+
+The spacious padding package creates space around windows, preventing crammed text on your screen. The =:init= section contains code Emacs evaluates when loading the package. In this case, it enables the Spacious Padding mode. The =:custom= section also sets the line spacing to a more generous value. You can read the manual for this mode with =C-h R spacious=.
+
+This configuration also modifies the ~line-spacing~ variable to create some space between logical lines. This variable is not part of the Spacious Padding package.
+
+#+begin_src elisp :tangle no
+  (use-package spacious-padding
+    :custom
+    (line-spacing 3)
+    (spacious-padding-mode 1))
+#+end_src
+
+#+begin_src emacs-lisp
+(which-key-add-key-based-replacements
+      "C-c w"   "Emacs Writing Studio"
+      "C-c w b" "Bibliographic"
+      "C-c w d" "Denote"
+      "C-c w m" "Multimedia"
+      "C-c w s" "Spelling and Grammar"
+      "C-c w t" "Themes"
+      "C-c w x" "Explore")
+#+end_src
+
+#+begin_src elisp
+  (when (display-graphic-p)
+    (context-menu-mode))
+#+end_src
+
+
+#+begin_src elisp
+  (use-package flyspell
+    :custom
+    (ispell-program-name "hunspell")
+    (ispell-dictionary ews-hunspell-dictionaries)
+    (flyspell-mark-duplications-flag nil) ;; Writegood mode does this
+    (org-fold-core-style 'overlays) ;; Fix Org mode bug
+    :config
+    (ispell-set-spellchecker-params)
+    (ispell-hunspell-add-multi-dic ews-hunspell-dictionaries)
+    :hook
+    (text-mode . flyspell-mode)
+    :bind
+    (("C-c w s s" . ispell)
+     ("C-;"       . flyspell-auto-correct-previous-word)))
+#+end_src
+
+some org variables
+#+begin_src emacs-lisp
+(setq
+    org-pretty-entities t
+    org-use-sub-superscripts "{}"
+    org-id-link-to-org-use-id t
+    org-fold-catch-invisible-edits 'show)
+#+end_src
+
+#+begin_src elisp  
+  (use-package org-appear
+    :hook
+    (org-mode . org-appear-mode))
+#+end_src
+
+The Org Fragtog package is similar to Org Appear but for LaTeX snippets. It automatically toggles Org mode LaTeX fragment previews as the cursor enters and exits them. By default, the text is small and can become unreadable when changing between dark and light themes.
+
+The =org-format-latex-options= variable controls the way Emacs presents fragments. This variable is a list with properties such as colours and size. The =plist-put= function lets you change options in the list. The foreground and background are set to take the same colour as your text. If you change from dark to light mode or vice versa, you should evaluate the ~org-latex-preview~ function (=C-c C-x C-l=) to change the preview images.
+
+Automated LaTeX previews are disabled because they can delay loading a page and cause trouble when the user does not have LaTeX installed.
+
+#+begin_src elisp
+  (use-package org-fragtog
+    :after org
+    :hook
+    (org-mode . org-fragtog-mode)
+    :custom
+    (org-startup-with-latex-preview nil)
+    (org-format-latex-options
+     (plist-put org-format-latex-options :scale 2)
+     (plist-put org-format-latex-options :foreground 'auto)
+     (plist-put org-format-latex-options :background 'auto)))
+#+end_src
+
+#+RESULTS:
+| org-fragtog-mode | #[0 \301\211\207 [imenu-create-index-function org-imenu-get-tree] 2] | org-tempo-setup | #[nil ((add-hook 'after-save-hook #'efs/org-babel-tangle-config)) (bootstrap-version t)] | #[0 \300\301\302\303\304$\207 [add-hook change-major-mode-hook org-fold-show-all append local] 5] | #[0 \300\301\302\303\304$\207 [add-hook change-major-mode-hook org-babel-show-result-all append local] 5] | org-babel-result-hide-spec | org-babel-hide-all-hashes | efs/org-mode-setup | #[nil ((display-line-numbers-mode 0)) (t)] |
+
+I can't get pdf-tools working anyway
+#+begin_src elisp
+  (use-package doc-view
+    :custom
+    (doc-view-resolution 300)
+    (large-file-warning-threshold (* 50 (expt 2 20))))
+#+end_src
+
+** Bibliographies
+:PROPERTIES:
+:ID:       1ec1546c-9d52-4cbd-9e0b-4ee3f7e307d1
+:END:
+These lines of code add two field types to BibTeX entries: keywords to help you order your literature and a link to a file so you can read any attachments in Emacs.
+
+The ~ews-register-bibtex~ function assigns all files with the =.bib= extension in the directory stored in the ~ews-bibliography-directory~ variable to the list of global BibTeX files. You need to set this variable to the location where you store your bibliography. Section [[#sec-bib]] explains creating and managing a bibliography. We use a special variable to ensure other variables have the same value.
+
+#+begin_src elisp :exports none
+  ;; Managing Bibliographies
+#+end_src
+#+begin_src elisp
+  (use-package bibtex
+    :custom
+    (bibtex-user-optional-fields
+     '(("keywords" "Keywords to describe the entry" "")
+       ("file"     "Relative or absolute path to attachments" "" )))
+    (bibtex-align-at-equal-sign t)
+    :config
+    (ews-bibtex-register)
+    :bind
+    (("C-c w b r" . ews-bibtex-register)))
+#+end_src
+
+#+RESULTS:
+: ews-bibtex-register
+
+The Biblio package enables you to extract literature from various databases.
+
+#+begin_src elisp :exports none
+  ;; Biblio package for adding BibTeX records
+#+end_src
+#+begin_src elisp
+  (use-package biblio
+    :bind
+    (("C-c w b b" . ews-bibtex-biblio-lookup)))
+#+end_src
+
+Citar is the workhorse package for managing a bibliography and citations. It provides an interface between your text and the bibliography.
+
+#+begin_src elisp :exports none
+  ;; Citar to access bibliographies
+#+end_src
+#+begin_src elisp
+  (use-package citar
+    :defer t
+    :custom
+    (citar-bibliography ews-bibtex-files)
+    :bind
+    (("C-c w b o" . citar-open)))
+#+end_src
+
+#+RESULTS:
+: citar-open
+
+** Reading websites
+:PROPERTIES:
+:ID:       ccc2bf85-425d-426e-8844-f6deb184e5fe
+:END:
+The Elfeed package helps with reading RSS files, and the Elfeed-Org package lets you configure RSS feeds with an Org file. The EWS repository contains an example file. Read section [[#sec-rss]] for more information on how to use this tool. Elfeed uses the cURL software to download feeds. If this software is unavailable, it will use a slower version built into Emacs.
+
+#+begin_src elisp :exports none
+  ;; Read RSS feeds with Elfeed
+#+end_src
+#+begin_src elisp
+  (use-package elfeed
+    :custom
+    (elfeed-db-directory
+     (expand-file-name "elfeed" user-emacs-directory))
+    (elfeed-show-entry-switch 'display-buffer)
+    :bind
+    ("C-c w e" . elfeed))
+#+end_src
+#+begin_src elisp :exports none
+  ;; Configure Elfeed with org mode
+#+end_src
+#+begin_src elisp
+  (use-package elfeed-org
+    :config
+    (elfeed-org)
+    :custom
+    (rmh-elfeed-org-files
+     (list (concat (file-name-as-directory (getenv "HOME"))
+  		 "elfeed.org"))))
+#+end_src
+
+#+RESULTS:
+: t
+
+The Org-Webtools package makes it easy to insert hyperlinks by converting the content of the kill ring to an Org hyperlink.
+
+#+begin_src elisp :exports none
+  ;; Easy insertion of weblinks
+#+end_src
+#+begin_src elisp
+  (use-package org-web-tools
+    :bind
+    (("C-c w w" . org-web-tools-insert-link-for-url)))
+#+end_src
+
+** Playing multimedia files
+:PROPERTIES:
+:ID:       cc8a4acc-0653-4c4e-9275-42482caa288d
+:END:
+The EMMS (Emacs MultiMedia System) package provides an interface to various multimedia players. You need one of these programs installed: =mpg321=, =ogg123= (vorbis-tools), =mplayer=, =mpv=, or VLC. 
+
+#+begin_src elisp :exports none
+  ;; Emacs Multimedia System
+#+end_src
+#+begin_src elisp
+  (use-package emms
+    :config
+    (require 'emms-setup)
+    (require 'emms-mpris)
+    (emms-all)
+    (emms-default-players)
+    (emms-mpris-enable)
+    :custom
+    (emms-browser-covers #'emms-browser-cache-thumbnail-async)
+    :bind
+    (("C-c w m b" . emms-browser)
+     ("C-c w m e" . emms)
+     ("C-c w m p" . emms-play-playlist )
+     ("<XF86AudioPrev>" . emms-previous)
+     ("<XF86AudioNext>" . emms-next)
+     ("<XF86AudioPlay>" . emms-pause)))
+#+end_src
+
+** Org capture
+:PROPERTIES:
+:ID:       310be789-8ec2-445e-b15a-c1f7fbf9b5f5
+:END:
+The possibilities for capture templates are extensive and depend on your use cases. This configuration is only an example of the options. The Org documentation provides lots of detail (=C-h R org <ret> capture=). The default Org settings save your fleeting notes to a hidden file (=~/.notes.org=). Customise the ~org-default-notes-file~ variable.
+
+#+begin_src elisp :exports none
+  ;; Fleeting notes
+#+end_src
+#+begin_src elisp
+  (use-package org
+    :bind
+    (("C-c c" . org-capture)
+     ("C-c l" . org-store-link))
+    :custom
+    (org-capture-templates
+     '(("f" "Fleeting note"
+        item
+        (file+headline org-default-notes-file "Notes")
+        "- %?")
+       ("p" "Permanent note" plain
+        (file denote-last-path)
+        #'denote-org-capture
+        :no-save t
+        :immediate-finish nil
+        :kill-buffer t
+        :jump-to-captured t)
+       ("t" "New task" entry
+        (file+headline org-default-notes-file "Tasks")
+        "* TODO %i%?"))))
+#+end_src
+    
+** Denote
+:PROPERTIES:
+:ID:       1af1a99f-768d-4154-9636-335c88794125
+:END:
+Denote is a flexible note-taking and file management package. Refer to [[#sec-denote]] or the extensive Denote manual with =C-h R denote=. At a minimum, you need to configure the ~denote-directory~ variable to indicate the location of your notes.
+
+The EWS package includes a convenience function to improve how Denote displays links to attachments, linked to the ~denote-link-description-function~.
+
+#+begin_src elisp :exports none
+  ;; Denote
+#+end_src
+#+begin_src elisp
+  (use-package denote
+    :defer t
+    :custom
+    (denote-sort-keywords t)
+    (denote-link-description-function #'ews-denote-link-description-title-case)
+    (denote-rename-buffer-mode 1)
+    :hook
+    (dired-mode . denote-dired-mode)
+    :custom-face
+    (denote-faces-link ((t (:slant italic))))
+    :bind
+    (("C-c w d b" . denote-find-backlink)
+     ("C-c w d d" . denote-date)
+     ("C-c w d l" . denote-find-link)
+     ("C-c w d i" . denote-link-or-create)
+     ("C-c w d k" . denote-rename-file-keywords)
+     ("C-c w d n" . denote)
+     ("C-c w d r" . denote-rename-file)
+     ("C-c w d R" . denote-rename-file-using-front-matter)))
+#+end_src
+
+The Denote developers provide an ecosystem of packages that enhance functionality, two of which are enabled in EWS.
+
+#+begin_src elisp :exports none
+  ;; Denote auxiliary packages
+#+end_src
+#+begin_src elisp
+  (use-package denote-journal)
+
+  (use-package denote-org
+    :bind
+    (("C-c w d h" . denote-org-link-to-heading)))
+
+  (use-package denote-sequence)
+#+end_src
+
+The Consult package provides some convenience functionality to make life in Emacs easier in many ways. The ~consult-grep~ function lets you search through files in the current directory. The search functionality requires access to the Grep software. The ~consult-org-heading~ command provides a table of contents of the Org mode file to quickly move around a large file. 
+
+Consult has a lot more functionality that replaces some base Emacs commands with more convenient version. Most of these have not been enabled to ensure we stay as close as possible to vanilla Emacs. The Consult documentation provides detailed descriptions of these enhanced commands.
+
+#+begin_src elisp :exports none
+  ;; Consult convenience functions
+#+end_src
+#+begin_src elisp
+  (use-package consult
+    :bind
+    (("C-c w h" . consult-org-heading)
+     ("C-c w g" . consult-grep))
+    :config
+    (add-to-list 'consult-preview-allowed-hooks 'visual-line-mode))
+#+end_src
+
+Consult Notes is a convenience package that builds on Consult. It provides access to Denote files and also lets you search through your notes.
+
+#+begin_src elisp :exports none
+  ;; Consult-Notes for easy access to notes
+#+end_src
+#+begin_src elisp
+  (use-package consult-notes
+    :custom
+    (consult-notes-denote-display-keywords-indicator "_")
+    :bind
+    (("C-c w d f" . consult-notes)
+     ("C-c w d g" . consult-notes-search-in-all-notes))
+    :init
+    (consult-notes-denote-mode))
+#+end_src
+
+The Citar-Denote package lets you create a many-to-many relationship between your Denote notes and items in your bibliography (section [[#sec-citar-denote]]).
+
+#+begin_src elisp :exports none
+  ;; Citar-Denote to manage literature notes
+#+end_src
+#+begin_src elisp
+  (use-package citar-denote
+    :custom
+    (citar-open-always-create-notes t)
+    :init
+    (citar-denote-mode)
+    :bind
+    (("C-c w b c" . citar-create-note)
+     ("C-c w b n" . citar-denote-open-note)
+     ("C-c w b x" . citar-denote-nocite)
+     :map org-mode-map
+     ("C-c w b k" . citar-denote-add-citekey)
+     ("C-c w b K" . citar-denote-remove-citekey)
+     ("C-c w b d" . citar-denote-dwim)
+     ("C-c w b e" . citar-denote-open-reference-entry)))
+#+end_src
+
+The Denote-Explore package provides convenience functions to manage your collection of notes and attachments (section [[#sec-denote-explore]]).
+
+#+begin_src elisp :exports none
+  ;; Explore and manage your Denote collection
+#+end_src
+#+begin_src elisp
+  (use-package denote-explore
+    :bind
+    (;; Statistics
+     ("C-c w x c" . denote-explore-count-notes)
+     ("C-c w x C" . denote-explore-count-keywords)
+     ("C-c w x b" . denote-explore-barchart-keywords)
+     ("C-c w x e" . denote-explore-barchart-filetypes)
+     ;; Random walks
+     ("C-c w x r" . denote-explore-random-note)
+     ("C-c w x l" . denote-explore-random-link)
+     ("C-c w x k" . denote-explore-random-keyword)
+     ("C-c w x x" . denote-explore-random-regex)
+     ;; Denote Janitor
+     ("C-c w x d" . denote-explore-identify-duplicate-notes)
+     ("C-c w x z" . denote-explore-zero-keywords)
+     ("C-c w x s" . denote-explore-single-keywords)
+     ("C-c w x o" . denote-explore-sort-keywords)
+     ("C-c w x w" . denote-explore-rename-keyword)
+     ;; Visualise denote
+     ("C-c w x n" . denote-explore-network)
+     ("C-c w x v" . denote-explore-network-regenerate)
+     ("C-c w x D" . denote-explore-barchart-degree)))
+#+end_src
+
+** Managing the writing process
+:PROPERTIES:
+:ID:       08181ab5-f743-4558-a34b-aaed300a2174
+:END:
+The EWS repository provides some Org-related convenience files for inserting notes, drawers, and counting words. At this stage, the screenshot command is experimental.
+
+#+begin_src elisp :exports none
+  ;; Set some Org mode shortcuts
+#+end_src
+#+begin_src elisp
+  (use-package org
+    :bind
+    (:map org-mode-map
+          ("C-c w n" . ews-org-insert-notes-drawer)
+          ("C-c w p" . ews-org-insert-screenshot)
+          ("C-c w c" . ews-org-count-words)))
+#+end_src
+
+The Olivetti package removes distractions from the screen and converts your Emacs session to an electronic typewriter. The ~ews-olivetti~ function stores the screen configuration before you activate the distraction-free writing mode. When you disable Olivetti mode with this function then the original configuration is restored.
+
+#+begin_src elisp :exports none
+  ;; Distraction-free writing
+#+end_src
+#+begin_src elisp
+  (use-package olivetti
+    :demand t
+    :bind
+    (("C-c w o" . ews-olivetti)))
+#+end_src
+
+** Citations
+:PROPERTIES:
+:ID:       f1403d42-293b-4ffe-840c-fe6d0b064105
+:END:
+This configuration sets the global bibliography equal to the ~ews-bibtex-files~ variable. To set this variable, configure the ~ews-bibtex-directory~ to register bibliography files and run the ~ews-bibtex-register~ function every time you add new bib-files.
+
+#+begin_src elisp :exports none
+  ;; Export citations with Org Mode
+#+end_src
+#+begin_src elisp
+  (require 'oc-natbib)
+  (require 'oc-csl)
+
+  (setq org-cite-global-bibliography ews-bibtex-files
+        org-cite-insert-processor 'citar
+        org-cite-follow-processor 'citar
+        org-cite-activate-processor 'citar)
+#+end_src
+
+** Quality assurance
+:PROPERTIES:
+:ID:       a71725d8-7111-45e8-9624-2573388d4366
+:END:
+Emacs can hook into the dictionary server at =dict.org=, for definitions and a thesaurus. Refer to section [[#sec-qa]] for details.
+
+#+begin_src elisp :exports none
+  ;; Lookup words in online dictionaries
+#+end_src
+#+begin_src elisp
+  (use-package dictionary
+    :custom
+    (dictionary-server "dict.org")
+    :bind
+    (("C-c w s d" . dictionary-lookup-definition)))
+#+end_src
+
+The Writegood package helps to detect weasel words, passive writing, and repeated words. It also contains functions to estimate a text's complexity using the Flesch-Kincaid test.
+
+#+begin_src elisp :exports none
+  ;; Writegood-Mode for weasel words, passive writing and repeated word detection
+#+end_src
+#+begin_src elisp
+  (use-package writegood-mode
+    :bind
+    (("C-c w s r" . writegood-reading-ease))
+    :hook
+    (text-mode . writegood-mode))
+#+end_src
+
+The TitleCase package strives for the most accurate title-casing of sentences, lines, and regions of text in English prose. You can customise the ~titlecase-style~ variable 
+
+The EWS convenience function can do this for all headings in an Org file to ensure consistency (section [[#sec-titlecase]]).
+
+#+begin_src elisp :exports none
+  ;; Titlecasing
+#+end_src
+#+begin_src elisp
+  (use-package titlecase
+    :bind
+    (("C-c w s t" . titlecase-dwim)
+     ("C-c w s c" . ews-org-headings-titlecase)))
+#+end_src
+
+** Abbreviations
+:PROPERTIES:
+:ID:       7f60d728-8c83-4200-8daf-ab59a101b69f
+:END:
+Abbrev mode is a built-in program that helps you speed up your writing by defining abbreviations and common spelling mistakes and automatically replacing them with words, sentences, or complete paragraphs.
+
+#+begin_src elisp :exports none
+  ;; Abbreviations
+#+end_src
+#+begin_src elisp
+  (add-hook 'text-mode-hook 'abbrev-mode)
+#+end_src
+
+The Lorem Ipsum generator can be helpful when designing a document's layout. This package inserts dummy Latin text into a buffer. 
+
+#+begin_src elisp :exports none
+  ;; Lorem Ipsum generator
+#+end_src
+#+begin_src elisp
+  (use-package lorem-ipsum
+    :custom
+    (lorem-ipsum-list-bullet "- ") ;; Org mode bullets
+    :init
+    (setq lorem-ipsum-sentence-separator
+          (if sentence-end-double-space "  " " "))
+    :bind
+    (("C-c w s i" . lorem-ipsum-insert-paragraphs)))
+#+end_src
+
+** Version control
+:PROPERTIES:
+:ID:       8388f11d-43f9-4dcb-bc3a-0fba2c8268c7
+:END:
+The built-in Ediff package compares different files and shows their differences. It also lets you decide how to merge the two versions, like a tracked-changes function in a Word processor. The ~ediff~ family of functions does not split its windows nicely by default, so these settings make the program more straightforward to use.
+
+Advanced version control requires a Version Control System, such as Git.
+
+#+begin_src elisp :exports none
+  ;; ediff
+#+end_src
+#+begin_src elisp
+  (use-package ediff
+    :ensure nil
+    :custom
+    (ediff-keep-variants nil)
+    (ediff-split-window-function 'split-window-horizontally)
+    (ediff-window-setup-function 'ediff-setup-windows-plain))
+#+end_src
+
+** Publication, Basic settings
+:PROPERTIES:
+:ID:       05299e89-a283-407f-9f65-6bb1e3828999
+:END:
+This snippet sets some basic export settings for org mode. You can either set  these as variable to apply them to all files by default, or insert them as keywords in your front matter.  The timestamp for exporting files is set to the European date format of day, month, and year. If you publish for American audiences, perhaps you like to modify the ~org-export-date-timestamp-format~ to ="%B %e %Y"=. These letters stand for the full name of the month, the day number without leading zero, and the year in four digits. See the documentation of the ~format-time-string~ function for details on how to format dates in other methods. Read the Export Settings section in to Org manual for a detailed description of the possible configurations.
+
+#+begin_src elisp :exports none
+  ;; PUBLICATION
+
+  ;; Generic Org Export Settings
+#+end_src
+#+begin_src elisp
+  (use-package org
+    :custom
+    (org-export-with-drawers nil)
+    (org-export-with-todo-keywords nil)
+    (org-export-with-toc nil)
+    (org-export-with-smart-quotes t)
+    (org-export-date-timestamp-format "%e %B %Y"))
+#+end_src
+
+** Epub
+:PROPERTIES:
+:ID:       659e7915-ae3d-4263-b7b5-13e5c9280041
+:END:
+The ox-ePub package exports Org files to the most common e-book format. The ~ox-org~  code negates some issues with the table of contents (section [[#sec-ox-epub]]). 
+
+#+begin_src elisp :exports none
+  ;; epub export
+#+end_src
+#+begin_src elisp
+  (use-package ox-epub
+    :demand t
+    :init
+    (require 'ox-org))
+#+end_src
+
+** LaTeX
+:PROPERTIES:
+:ID:       a216c8ef-31a5-4cd5-b425-a6ea2439c05f
+:END:
+This configuration part defines the export process from Org to TeX to PDF. This setup also removes any temporary files created in the process. You will obviously need a working version of LaTeX with all relevant packages  installed on your computer.
+
+#+begin_src elisp :exports none
+  ;; LaTeX PDF Export settings
+#+end_src
+#+begin_src elisp
+  (setq
+   org-latex-pdf-process
+   '("pdflatex -interaction nonstopmode -output-directory %o %f"
+     "bibtex %b"
+     "pdflatex -shell-escape -interaction nonstopmode -output-directory %o %f"
+     "pdflatex -shell-escape -interaction nonstopmode -output-directory %o %f")
+
+   org-latex-logfiles-extensions
+   '("lof" "lot" "tex~" "aux" "idx" "log" "out"
+     "toc" "nav" "snm" "vrb" "dvi" "fdb_latexmk"
+     "blg" "brf" "fls" "entoc" "ps" "spl" "bbl"
+     "tex" "bcf"))
+
+#+end_src
+
+The next section defines the EWS document class, which is used to produce the paperback version of this book. The first part of the code defines the name used in the Org file, in this case =#+latex_class: ews=. The next par is the preamble in LaTeX code. Note that backslashes need to be escaped by using two of them. Org also adds standard packages, read the documentation for ~org-latex-classes~ for details on how to modify the standard inclusions. The last section defines how the heading levels in the Org file are translated to LaTeX commands. This code defines the first three Org heading levels.
+
+#+begin_src elisp :exports none
+  ;; EWS paperback configuration
+#+end_src
+#+begin_src elisp
+    (with-eval-after-load 'ox-latex
+      (add-to-list
+       'org-latex-classes
+       '("ews"
+         "\\documentclass[11pt, twoside, hidelinks]{memoir}
+            \\setstocksize{9.25in}{7.5in}
+            \\settrimmedsize{\\stockheight}{\\stockwidth}{*}
+            \\setlrmarginsandblock{1.5in}{1in}{*} 
+            \\setulmarginsandblock{1in}{1.5in}{*}
+            \\checkandfixthelayout
+            \\layout
+            \\setcounter{tocdepth}{0}
+            \\renewcommand{\\baselinestretch}{1.25}
+            \\setheadfoot{0.5in}{0.75in}
+            \\setlength{\\footskip}{0.8in}
+            \\chapterstyle{bianchi}
+            \\setsecheadstyle{\\normalfont \\raggedright \\textbf}
+            \\setsubsecheadstyle{\\normalfont \\raggedright \\emph}
+            \\setsubsubsecheadstyle{\\normalfont\\centering}
+            \\pagestyle{myheadings}
+            \\usepackage[font={small, it}]{caption}
+            \\usepackage{ccicons}
+            \\usepackage{ebgaramond}
+            \\usepackage[authoryear]{natbib}
+            \\bibliographystyle{apalike}
+            \\usepackage{svg}
+    \\hyphenation{mini-buffer}"
+         ("\\chapter{%s}" . "\\chapter*{%s}")
+         ("\\section{%s}" . "\\section*{%s}")
+         ("\\subsection{%s}" . "\\subsection*{%s}")
+         ("\\subsubsection{%s}" . "\\subsubsection*{%s}"))))
+#+end_src
+
 * Performance
 ** lsp-mode 
+:PROPERTIES:
+:ID:       2246632c-c32f-4549-9887-7376619f39b9
+:END:
 lsp-mode creates a lot of garbage
 #+begin_src emacs-lisp
   (setq gc-cons-threshold 100000000)
