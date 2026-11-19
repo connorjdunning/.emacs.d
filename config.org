@@ -1170,15 +1170,20 @@ Repo: https://github.com/artenator/somafm.el
 rpgtk
 Repo: https://codeberg.org/howardabrams/emacs-rpgtk.git
 #+begin_src emacs-lisp
-    (use-package rpgtk
-      :straight (:type git :host codeberg :repo "howardabrams/emacs-rpgtk")
-      :init ;before pkg loads
-      :config ;after load
-      (rpgtk-tables-load "/home/connor/.emacs.d/rpg/tables")
-
-     ;; :hook
-     ;; (org-mode . rpgtk-mode)
-      )
+  (use-package rpgtk
+    :straight (:type git :host codeberg :repo "howardabrams/emacs-rpgtk")
+    :init ;before pkg loads
+    :config ;after load
+    (rpgtk-tables-load "/home/connor/.emacs.d/rpg/tables")
+    
+    ;; :hook
+    ;; (org-mode . rpgtk-mode)
+    )
+  (use-package hexmap.el
+    :straight (:type git :host github :repo "connorjdunning/hexmap.el")
+    :init ;before pkg loads
+    :config ;after load
+    )
 
   (defface square-font-face
     '((t (:family "Square" :height 0.8)))
