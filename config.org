@@ -44,6 +44,8 @@ Repo: https://github.com/radian-software/straight.el
 *Bootstrapping*
 #+begin_src emacs-lisp
    ;;; -*- lexical-binding: t; -*-
+  (setq package-install-upgrade-built-in t)
+
   (setq straight-use-package-by-default t) ; use-package invokes straight.el
 
   (defvar bootstrap-version)
@@ -1010,6 +1012,11 @@ Reference Card: https://magit.vc/manual/magit-refcard.pdf
   (use-package evil-magit
     :after magit)
 #+end_src
+
+#+begin_src emacs-lisp :tangle no
+(setq package-install-upgrade-built-in t)
+(progn (unload-feature 'transient t) (require 'transient))
+#+end_src>
 ** TODO Lsp-mode
 :PROPERTIES:
 :ID:       36c4ddc1-8ca7-466c-b56a-703db9d0c56d
